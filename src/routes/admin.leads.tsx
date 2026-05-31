@@ -204,7 +204,7 @@ function AdminLeadsPage() {
           <thead>
             <tr style={{ background: "var(--bg-subtle, #fafafa)", textAlign: "left" }}>
               <Th>Date</Th><Th>Audience</Th><Th>Nom</Th><Th>Email</Th>
-              <Th>Territoire</Th><Th>Statut</Th><Th></Th>
+              <Th>Territoire</Th><Th>Statut</Th><Th>{" "}</Th>
             </tr>
           </thead>
           <tbody>
