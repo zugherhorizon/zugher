@@ -34,11 +34,13 @@ const groups: NavGroup[] = [
   {
     title: "Nous rejoindre",
     items: [
+      { to: "/inscription", label: "Créer un compte" },
       { to: "/contact", label: "Contact" },
       { to: "/newsletter", label: "Newsletter" },
     ],
   },
 ];
+
 
 export function Sidebar() {
   const [open, setOpen] = useState(false);

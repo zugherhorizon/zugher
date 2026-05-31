@@ -15,6 +15,7 @@ import { Route as ParcoursRouteImport } from './routes/parcours'
 import { Route as OpportunitesRouteImport } from './routes/opportunites'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as InvestisseursRouteImport } from './routes/investisseurs'
+import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CompetencesRouteImport } from './routes/competences'
@@ -50,6 +51,11 @@ const NewsletterRoute = NewsletterRouteImport.update({
 const InvestisseursRoute = InvestisseursRouteImport.update({
   id: '/investisseurs',
   path: '/investisseurs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InscriptionRoute = InscriptionRouteImport.update({
+  id: '/inscription',
+  path: '/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/competences': typeof CompetencesRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
   '/newsletter': typeof NewsletterRoute
   '/opportunites': typeof OpportunitesRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/competences': typeof CompetencesRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
   '/newsletter': typeof NewsletterRoute
   '/opportunites': typeof OpportunitesRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/competences': typeof CompetencesRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
   '/newsletter': typeof NewsletterRoute
   '/opportunites': typeof OpportunitesRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/competences'
     | '/contact'
     | '/dashboard'
+    | '/inscription'
     | '/investisseurs'
     | '/newsletter'
     | '/opportunites'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/competences'
     | '/contact'
     | '/dashboard'
+    | '/inscription'
     | '/investisseurs'
     | '/newsletter'
     | '/opportunites'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/competences'
     | '/contact'
     | '/dashboard'
+    | '/inscription'
     | '/investisseurs'
     | '/newsletter'
     | '/opportunites'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   CompetencesRoute: typeof CompetencesRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
+  InscriptionRoute: typeof InscriptionRoute
   InvestisseursRoute: typeof InvestisseursRoute
   NewsletterRoute: typeof NewsletterRoute
   OpportunitesRoute: typeof OpportunitesRoute
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/investisseurs'
       fullPath: '/investisseurs'
       preLoaderRoute: typeof InvestisseursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inscription': {
+      id: '/inscription'
+      path: '/inscription'
+      fullPath: '/inscription'
+      preLoaderRoute: typeof InscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompetencesRoute: CompetencesRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
+  InscriptionRoute: InscriptionRoute,
   InvestisseursRoute: InvestisseursRoute,
   NewsletterRoute: NewsletterRoute,
   OpportunitesRoute: OpportunitesRoute,
@@ -292,3 +313,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
