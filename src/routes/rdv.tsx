@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { sendTransactionalEmail } from "@/lib/email/send";
 import {
   listAvailableSlots,
   bookAppointment,
@@ -90,6 +91,27 @@ function RdvPage() {
       });
       setResult(r);
       if (r.ok) {
+        const { data: u } = await supabase.auth.getUser();
+        const recipient = u.user?.email;
+        if (recipient) {
+          try {
+            await sendTransactionalEmail({
+              templateName: "appointment-confirmation",
+              recipientEmail: recipient,
+              idempotencyKey: `appt-confirm-${selected.startsAt}-${recipient}`,
+              templateData: {
+                contactName: name.trim(),
+                dateLabel: formatDateHeader(selected.startsAt),
+                timeLabel: `${formatTime(selected.startsAt)} (heure de Paris)`,
+                format,
+                meetingLink: r.meetingLink ?? null,
+                contactPhone: phone.trim() || null,
+              },
+            });
+          } catch (mailErr) {
+            console.warn("Confirmation email failed", mailErr);
+          }
+        }
         setSelected(null);
         refetch();
       }
