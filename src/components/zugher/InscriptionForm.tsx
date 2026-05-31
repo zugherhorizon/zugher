@@ -100,7 +100,10 @@ type Props = {
 
 export function InscriptionForm({ mode = "account", defaults }: Props) {
   const isNewsletter = mode === "newsletter";
-  const schema = isNewsletter ? baseSchema : accountSchema;
+  // Same validation rules for both flows (pays/profil/audience requis,
+  // territoire pour grand public, besoins requis pour les pro).
+  const schema = accountSchema;
+
 
   const [form, setForm] = useState<FormState>(() => ({ ...initial, ...defaults }));
   const [errors, setErrors] = useState<Record<string, string>>({});
