@@ -340,8 +340,13 @@ function InscriptionPage() {
               ))}
             </select>
           </Field>
-          <Field label="Pays">
-            <select value={form.pays} onChange={setField("pays")}>
+          <Field label="Pays" required error={errors.pays}>
+            <select
+              required
+              value={form.pays}
+              onChange={setField("pays")}
+              aria-invalid={!!errors.pays}
+            >
               <option value="">— Sélectionnez votre pays —</option>
               {PAYS.map((p) => (
                 <option key={p} value={p}>{p}</option>
