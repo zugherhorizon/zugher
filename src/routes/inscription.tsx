@@ -350,6 +350,49 @@ function InscriptionPage() {
           </Field>
         </div>
 
+        <div className="zg-grid-2">
+          <Field label="Région" error={errors.region}>
+            <input
+              type="text"
+              value={form.region}
+              onChange={setField("region")}
+              maxLength={120}
+              placeholder="Nouvelle-Aquitaine"
+              autoComplete="address-level1"
+            />
+          </Field>
+          <Field label="Département" error={errors.departement}>
+            <input
+              type="text"
+              value={form.departement}
+              onChange={setField("departement")}
+              maxLength={120}
+              placeholder="Gironde (33)"
+            />
+          </Field>
+        </div>
+
+        <div className="zg-grid-2">
+          <Field label="Ville" error={errors.ville}>
+            <input
+              type="text"
+              value={form.ville}
+              onChange={setField("ville")}
+              maxLength={120}
+              placeholder="Bordeaux"
+              autoComplete="address-level2"
+            />
+          </Field>
+          <Field label="Secteur d'activité" error={errors.secteur}>
+            <select value={form.secteur} onChange={setField("secteur")}>
+              <option value="">— Sélectionnez un secteur —</option>
+              {SECTEURS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
         {serverError && <div className="zg-error">{serverError}</div>}
 
         <p className="zg-help">
