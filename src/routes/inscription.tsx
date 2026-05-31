@@ -162,6 +162,10 @@ function InscriptionPage() {
             phone: form.phone.trim(),
             profile: form.profil,
             country: form.pays.trim(),
+            region: form.region.trim(),
+            department: form.departement.trim(),
+            city: form.ville.trim(),
+            sector: form.secteur.trim(),
           },
         },
       });
