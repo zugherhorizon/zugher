@@ -144,6 +144,34 @@ function AdminSettingsPage() {
           </div>
         </form>
       )}
+
+      <div style={{ marginTop: 48, borderTop: "1px solid rgba(0,0,0,.08)", paddingTop: 28 }}>
+        <h2 className="zg-h2" style={{ fontSize: "clamp(20px, 2.5vw, 26px)" }}>
+          Agenda Google · RDV Pro
+        </h2>
+        <p className="zg-help" style={{ marginTop: 8 }}>
+          Calendrier cible actuel : <code><strong>{currentTarget}</strong></code>.
+          Pour changer, définissez le secret <code>GOOGLE_CALENDAR_ID</code> avec l'ID du
+          calendrier voulu (ex. <code>primary</code> ou une adresse de calendrier partagé).
+        </p>
+        {calsError && <div className="zg-error" style={{ marginTop: 12 }}>{calsError}</div>}
+        {cals && (
+          <ul className="zg-list" style={{ marginTop: 12 }}>
+            {cals.map((c) => (
+              <li key={c.id} style={{ marginBottom: 6 }}>
+                <strong>{c.summary}</strong>
+                {c.primary && <span style={{ marginLeft: 8, color: "var(--terra)" }}>(primary)</span>}
+                <br />
+                <code style={{ fontSize: 12 }}>{c.id}</code>
+                {c.accessRole && <span style={{ marginLeft: 8, opacity: .7 }}>· {c.accessRole}</span>}
+                {c.id === currentTarget && (
+                  <span style={{ marginLeft: 8, color: "var(--terra)" }}>← cible actuelle</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }
