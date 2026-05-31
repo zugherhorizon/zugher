@@ -11,6 +11,12 @@ export const Route = createFileRoute("/confirm-email")({
   component: ConfirmEmailPage,
 });
 
+type Meta = {
+  signup_source?: string;
+  audience?: string;
+  territory?: string;
+};
+
 function ConfirmEmailPage() {
   const { loading, user, emailConfirmed } = useAuth();
 
@@ -23,6 +29,64 @@ function ConfirmEmailPage() {
   }
 
   if (user && emailConfirmed) {
+    const meta = (user.user_metadata ?? {}) as Meta;
+    const isNewsletter = meta.signup_source === "newsletter";
+    const isPro = meta.audience === "pro";
+    const territory = meta.territory?.trim();
+
+    // CASE 1 — Newsletter only
+    if (isNewsletter) {
+      return (
+        <section className="zg-stub" style={{ maxWidth: 720 }}>
+          <div className="zg-stub-tag">Newsletter</div>
+          <h1 className="zg-h1" style={{ fontSize: "clamp(32px, 4vw, 48px)" }}>
+            Votre inscription à notre <em>newsletter</em> est prise en compte.
+          </h1>
+          <p className="zg-lead">
+            Merci <strong>{user.email}</strong>. Vous recevrez la lettre mensuelle
+            zugher dans votre boîte mail. Aucun appel ni rendez-vous ne sera
+            planifié.
+          </p>
+          <div className="zg-actions" style={{ marginTop: 24 }}>
+            <Link to="/" className="zg-btn zg-btn-primary">Retour à l'accueil</Link>
+          </div>
+        </section>
+      );
+    }
+
+    // CASE 2 — Pro account → schedule appointment
+    if (isPro) {
+      return (
+        <section className="zg-stub" style={{ maxWidth: 720 }}>
+          <div className="zg-stub-tag">Compte professionnel activé</div>
+          <h1 className="zg-h1" style={{ fontSize: "clamp(32px, 4vw, 48px)" }}>
+            Bienvenue. Planifions notre <em>premier échange</em>.
+          </h1>
+          <p className="zg-lead">
+            Votre compte pro <strong>{user.email}</strong> est actif. Choisissez
+            un créneau pour un appel ou une visio avec notre équipe.
+          </p>
+          <div className="zg-gate-note" style={{ marginTop: 16 }}>
+            <strong>Comment ça se passe ?</strong>
+            <ul className="zg-list" style={{ marginTop: 8 }}>
+              <li>Sélectionnez un créneau de 30 minutes disponible</li>
+              <li>Choisissez le format : appel téléphonique ou visio Google Meet</li>
+              <li>Une invitation calendrier vous sera envoyée par email</li>
+            </ul>
+          </div>
+          <div className="zg-actions" style={{ marginTop: 24 }}>
+            <Link to="/rdv" className="zg-btn zg-btn-primary">
+              Choisir un créneau
+            </Link>
+            <Link to="/dashboard" className="zg-btn zg-btn-ghost">
+              Plus tard — accéder à mon espace
+            </Link>
+          </div>
+        </section>
+      );
+    }
+
+    // CASE 3 — Grand public → subscription offers
     return (
       <section className="zg-stub" style={{ maxWidth: 720 }}>
         <div className="zg-stub-tag">Compte activé</div>
@@ -30,12 +94,18 @@ function ConfirmEmailPage() {
           Bienvenue, votre compte est <em>actif</em>.
         </h1>
         <p className="zg-lead">
-          Votre adresse <strong>{user.email}</strong> est confirmée. Vous pouvez
-          maintenant accéder à votre espace privé zugher.
+          Votre adresse <strong>{user.email}</strong> est confirmée. Découvrez
+          maintenant nos offres pour suivre les opportunités
+          {territory ? <> sur <strong>{territory}</strong></> : null} et passer à
+          l'action.
         </p>
         <div className="zg-actions" style={{ marginTop: 24 }}>
-          <Link to="/dashboard" className="zg-btn zg-btn-primary">Accéder à mon espace</Link>
-          <Link to="/applications" className="zg-btn zg-btn-ghost">Voir les applications</Link>
+          <Link to="/offres" className="zg-btn zg-btn-primary">
+            Voir les offres d'abonnement
+          </Link>
+          <Link to="/dashboard" className="zg-btn zg-btn-ghost">
+            Accéder à mon espace
+          </Link>
         </div>
       </section>
     );
