@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TerritoireRouteImport } from './routes/territoire'
 import { Route as RdvRouteImport } from './routes/rdv'
 import { Route as ProRouteImport } from './routes/pro'
@@ -33,6 +34,11 @@ import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lova
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TerritoireRoute = TerritoireRouteImport.update({
   id: '/territoire',
   path: '/territoire',
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/pro': typeof ProRoute
   '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/pro': typeof ProRoute
   '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/pro': typeof ProRoute
   '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/rdv'
     | '/territoire'
+    | '/unsubscribe'
     | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/rdv'
     | '/territoire'
+    | '/unsubscribe'
     | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/rdv'
     | '/territoire'
+    | '/unsubscribe'
     | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
@@ -322,6 +334,7 @@ export interface RootRouteChildren {
   ProRoute: typeof ProRoute
   RdvRoute: typeof RdvRoute
   TerritoireRoute: typeof TerritoireRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminParametresRoute: typeof AdminParametresRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -334,6 +347,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/territoire': {
       id: '/territoire'
       path: '/territoire'
@@ -514,6 +534,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProRoute: ProRoute,
   RdvRoute: RdvRoute,
   TerritoireRoute: TerritoireRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   AdminLeadsRoute: AdminLeadsRoute,
   AdminParametresRoute: AdminParametresRoute,
   ApiChatRoute: ApiChatRoute,
