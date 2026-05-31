@@ -292,12 +292,56 @@ function InscriptionPage() {
         Rejoignez <em>zugher</em>.
       </h1>
       <p className="zg-lead">
-        L'<strong>e-mail</strong>, le <strong>profil</strong> et le{" "}
-        <strong>pays</strong> sont obligatoires. Vous recevrez un lien de
-        vérification par e-mail pour activer votre compte.
+        L'<strong>e-mail</strong>, le <strong>type de compte</strong>, le{" "}
+        <strong>profil</strong> et le <strong>pays</strong> sont obligatoires.
+        Vous recevrez un lien de vérification par e-mail pour activer votre compte.
       </p>
 
       <form onSubmit={onSubmit} className="zg-form" style={{ marginTop: 28 }} noValidate>
+        <Field label="Type de compte" required error={errors.audience}>
+          <select
+            required
+            value={form.audience}
+            onChange={setField("audience")}
+            aria-invalid={!!errors.audience}
+          >
+            <option value="">— Sélectionnez —</option>
+            <option value="grand_public">Grand public (particulier / investisseur individuel)</option>
+            <option value="pro">Professionnel (entreprise, agence, institution, association…)</option>
+          </select>
+        </Field>
+
+        {form.audience === "grand_public" && (
+          <Field label="Territoire d'intérêt" error={errors.territory}>
+            <input
+              type="text"
+              value={form.territory}
+              onChange={setField("territory")}
+              maxLength={160}
+              placeholder="Ex. Nouvelle-Aquitaine, Dakar, Tunis…"
+            />
+          </Field>
+        )}
+
+        {form.audience === "pro" && (
+          <Field
+            label="Vos besoins (préparation du rendez-vous)"
+            required
+            error={errors.needs}
+          >
+            <textarea
+              required
+              value={form.needs}
+              onChange={setField("needs")}
+              maxLength={2000}
+              rows={5}
+              placeholder="Décrivez votre projet, le territoire ciblé, vos attentes, votre calendrier, toute information utile pour préparer notre appel ou rendez-vous."
+              aria-invalid={!!errors.needs}
+            />
+          </Field>
+        )}
+
+
         <div className="zg-grid-2">
           <Field label="Prénom">
             <input
