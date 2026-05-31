@@ -47,6 +47,26 @@ const PAYS = [
   "Autre",
 ];
 
+const SECTEURS = [
+  "Agriculture & Agroalimentaire",
+  "Artisanat",
+  "Commerce & Distribution",
+  "Construction & BTP",
+  "Culture, Arts & Médias",
+  "Éducation & Formation",
+  "Énergie & Environnement",
+  "Finance & Assurance",
+  "Industrie & Manufacturing",
+  "Immobilier",
+  "Numérique & Tech",
+  "Santé & Bien-être",
+  "Services aux entreprises",
+  "Services à la personne",
+  "Tourisme & Hôtellerie",
+  "Transport & Logistique",
+  "Autre",
+];
+
 const schema = z
   .object({
     firstName: z.string().trim().max(80).optional().or(z.literal("")),
@@ -62,6 +82,10 @@ const schema = z
       .or(z.literal("")),
     profil: z.enum(PROFIL_VALUES, { message: "Sélectionnez un profil" }),
     pays: z.string().trim().max(80).optional().or(z.literal("")),
+    region: z.string().trim().max(120).optional().or(z.literal("")),
+    departement: z.string().trim().max(120).optional().or(z.literal("")),
+    ville: z.string().trim().max(120).optional().or(z.literal("")),
+    secteur: z.string().trim().max(120).optional().or(z.literal("")),
   })
   .refine((d) => d.email.toLowerCase() === d.emailConfirm.toLowerCase(), {
     path: ["emailConfirm"],
@@ -76,6 +100,10 @@ type FormState = {
   phone: string;
   profil: string;
   pays: string;
+  region: string;
+  departement: string;
+  ville: string;
+  secteur: string;
 };
 
 const initial: FormState = {
@@ -86,6 +114,10 @@ const initial: FormState = {
   phone: "",
   profil: "",
   pays: "",
+  region: "",
+  departement: "",
+  ville: "",
+  secteur: "",
 };
 
 function InscriptionPage() {
