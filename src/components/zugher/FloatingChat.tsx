@@ -59,10 +59,10 @@ export function FloatingChat() {
   const [input, setInput] = useState("");
   const isLoading = status === "submitted" || status === "streaming";
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-    sendMessage({ text: input.trim() });
+  const onSubmit = (message: { text?: string }) => {
+    const text = (message.text ?? input).trim();
+    if (!text || isLoading) return;
+    sendMessage({ text });
     setInput("");
   };
 
@@ -116,9 +116,7 @@ export function FloatingChat() {
                   .join("");
                 return (
                   <Message from={m.role} key={m.id}>
-                    <MessageContent
-                      variant={m.role === "user" ? "contained" : "flat"}
-                    >
+                    <MessageContent>
                       {m.role === "assistant" ? (
                         <div className="zg-chat-md">
                           <ReactMarkdown>{text}</ReactMarkdown>
