@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Sidebar } from "@/components/zugher/Sidebar";
+import { FloatingChat } from "@/components/zugher/FloatingChat";
 
 function NotFoundComponent() {
   return (
@@ -132,6 +133,7 @@ function RootComponent() {
       <main className="zg-main">
         <Outlet />
       </main>
+      <FloatingChat />
     </QueryClientProvider>
   );
 }
