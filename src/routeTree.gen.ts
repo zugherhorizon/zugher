@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TerritoireRouteImport } from './routes/territoire'
+import { Route as RdvRouteImport } from './routes/rdv'
 import { Route as ProRouteImport } from './routes/pro'
 import { Route as ParcoursRouteImport } from './routes/parcours'
 import { Route as OpportunitesRouteImport } from './routes/opportunites'
+import { Route as OffresRouteImport } from './routes/offres'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as InvestisseursRouteImport } from './routes/investisseurs'
 import { Route as InscriptionRouteImport } from './routes/inscription'
@@ -31,6 +33,11 @@ const TerritoireRoute = TerritoireRouteImport.update({
   path: '/territoire',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RdvRoute = RdvRouteImport.update({
+  id: '/rdv',
+  path: '/rdv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProRoute = ProRouteImport.update({
   id: '/pro',
   path: '/pro',
@@ -44,6 +51,11 @@ const ParcoursRoute = ParcoursRouteImport.update({
 const OpportunitesRoute = OpportunitesRouteImport.update({
   id: '/opportunites',
   path: '/opportunites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OffresRoute = OffresRouteImport.update({
+  id: '/offres',
+  path: '/offres',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsletterRoute = NewsletterRouteImport.update({
@@ -117,9 +129,11 @@ export interface FileRoutesByFullPath {
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
   '/newsletter': typeof NewsletterRoute
+  '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
+  '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
@@ -135,9 +149,11 @@ export interface FileRoutesByTo {
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
   '/newsletter': typeof NewsletterRoute
+  '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
+  '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
@@ -154,9 +170,11 @@ export interface FileRoutesById {
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
   '/newsletter': typeof NewsletterRoute
+  '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
+  '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
@@ -174,9 +192,11 @@ export interface FileRouteTypes {
     | '/inscription'
     | '/investisseurs'
     | '/newsletter'
+    | '/offres'
     | '/opportunites'
     | '/parcours'
     | '/pro'
+    | '/rdv'
     | '/territoire'
     | '/admin/leads'
     | '/admin/parametres'
@@ -192,9 +212,11 @@ export interface FileRouteTypes {
     | '/inscription'
     | '/investisseurs'
     | '/newsletter'
+    | '/offres'
     | '/opportunites'
     | '/parcours'
     | '/pro'
+    | '/rdv'
     | '/territoire'
     | '/admin/leads'
     | '/admin/parametres'
@@ -210,9 +232,11 @@ export interface FileRouteTypes {
     | '/inscription'
     | '/investisseurs'
     | '/newsletter'
+    | '/offres'
     | '/opportunites'
     | '/parcours'
     | '/pro'
+    | '/rdv'
     | '/territoire'
     | '/admin/leads'
     | '/admin/parametres'
@@ -229,9 +253,11 @@ export interface RootRouteChildren {
   InscriptionRoute: typeof InscriptionRoute
   InvestisseursRoute: typeof InvestisseursRoute
   NewsletterRoute: typeof NewsletterRoute
+  OffresRoute: typeof OffresRoute
   OpportunitesRoute: typeof OpportunitesRoute
   ParcoursRoute: typeof ParcoursRoute
   ProRoute: typeof ProRoute
+  RdvRoute: typeof RdvRoute
   TerritoireRoute: typeof TerritoireRoute
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminParametresRoute: typeof AdminParametresRoute
@@ -245,6 +271,13 @@ declare module '@tanstack/react-router' {
       path: '/territoire'
       fullPath: '/territoire'
       preLoaderRoute: typeof TerritoireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rdv': {
+      id: '/rdv'
+      path: '/rdv'
+      fullPath: '/rdv'
+      preLoaderRoute: typeof RdvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pro': {
@@ -266,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/opportunites'
       fullPath: '/opportunites'
       preLoaderRoute: typeof OpportunitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offres': {
+      id: '/offres'
+      path: '/offres'
+      fullPath: '/offres'
+      preLoaderRoute: typeof OffresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/newsletter': {
@@ -365,9 +405,11 @@ const rootRouteChildren: RootRouteChildren = {
   InscriptionRoute: InscriptionRoute,
   InvestisseursRoute: InvestisseursRoute,
   NewsletterRoute: NewsletterRoute,
+  OffresRoute: OffresRoute,
   OpportunitesRoute: OpportunitesRoute,
   ParcoursRoute: ParcoursRoute,
   ProRoute: ProRoute,
+  RdvRoute: RdvRoute,
   TerritoireRoute: TerritoireRoute,
   AdminLeadsRoute: AdminLeadsRoute,
   AdminParametresRoute: AdminParametresRoute,
