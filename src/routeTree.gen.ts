@@ -23,6 +23,7 @@ import { Route as CompetencesRouteImport } from './routes/competences'
 import { Route as BusinessPlanRouteImport } from './routes/business-plan'
 import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
 
 const TerritoireRoute = TerritoireRouteImport.update({
   id: '/territoire',
@@ -94,6 +95,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminParametresRoute = AdminParametresRouteImport.update({
+  id: '/admin/parametres',
+  path: '/admin/parametres',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
+  '/admin/parametres': typeof AdminParametresRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
+  '/admin/parametres': typeof AdminParametresRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
+  '/admin/parametres': typeof AdminParametresRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/parcours'
     | '/pro'
     | '/territoire'
+    | '/admin/parametres'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/parcours'
     | '/pro'
     | '/territoire'
+    | '/admin/parametres'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/parcours'
     | '/pro'
     | '/territoire'
+    | '/admin/parametres'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   ParcoursRoute: typeof ParcoursRoute
   ProRoute: typeof ProRoute
   TerritoireRoute: typeof TerritoireRoute
+  AdminParametresRoute: typeof AdminParametresRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/parametres': {
+      id: '/admin/parametres'
+      path: '/admin/parametres'
+      fullPath: '/admin/parametres'
+      preLoaderRoute: typeof AdminParametresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParcoursRoute: ParcoursRoute,
   ProRoute: ProRoute,
   TerritoireRoute: TerritoireRoute,
+  AdminParametresRoute: AdminParametresRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

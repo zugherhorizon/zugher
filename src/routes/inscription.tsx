@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export const Route = createFileRoute("/inscription")({
   head: () => ({
@@ -91,8 +92,11 @@ function InscriptionPage() {
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sentAt, setSentAt] = useState<number | null>(null);
   const [sending, setSending] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const { settings } = useSiteSettings();
+  const timeoutMin = settings.email_verification_timeout_minutes;
 
   const setField =
     (k: keyof FormState) =>
@@ -130,6 +134,7 @@ function InscriptionPage() {
         },
       });
       if (error) throw error;
+      setSentAt(Date.now());
       setSubmitted(true);
     } catch (err) {
       setServerError(
@@ -166,12 +171,14 @@ function InscriptionPage() {
           activer votre compte zugher.
         </p>
 
-        <div className="zg-gate-note" style={{ marginTop: 24 }}>
+        <Countdown sentAt={sentAt} timeoutMin={timeoutMin} />
+
+        <div className="zg-gate-note" style={{ marginTop: 16 }}>
           <strong>Important</strong>
           <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
             Votre espace privé reste verrouillé tant que l'adresse n'est pas
-            confirmée. Si vous ne recevez rien dans 5 minutes, vérifiez vos
-            spams ou recommencez l'inscription avec la même adresse.
+            confirmée. Si vous ne recevez rien dans {timeoutMin} minute{timeoutMin > 1 ? "s" : ""},
+            vérifiez vos spams ou demandez un nouveau lien.
           </p>
         </div>
 
@@ -340,5 +347,44 @@ function Field({
       {children}
       {error && <span className="zg-error" style={{ marginTop: 6 }}>{error}</span>}
     </label>
+  );
+}
+
+function Countdown({ sentAt, timeoutMin }: { sentAt: number | null; timeoutMin: number }) {
+  const totalMs = timeoutMin * 60_000;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!sentAt) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [sentAt]);
+  if (!sentAt) return null;
+  const remaining = Math.max(0, totalMs - (now - sentAt));
+  const mm = Math.floor(remaining / 60_000);
+  const ss = Math.floor((remaining % 60_000) / 1000).toString().padStart(2, "0");
+  const expired = remaining === 0;
+  return (
+    <div
+      className="zg-gate-note"
+      style={{
+        marginTop: 24,
+        borderColor: expired ? "var(--terra)" : undefined,
+      }}
+    >
+      <strong>{expired ? "Délai expiré" : "Temps restant pour confirmer"}</strong>
+      <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
+        {expired ? (
+          <>Le délai de {timeoutMin} minute{timeoutMin > 1 ? "s" : ""} est écoulé. Demandez un nouveau lien ci-dessous.</>
+        ) : (
+          <>
+            Cliquez sur le lien dans votre e-mail dans les{" "}
+            <strong style={{ fontVariantNumeric: "tabular-nums" }}>
+              {mm}:{ss}
+            </strong>{" "}
+            qui suivent.
+          </>
+        )}
+      </p>
+    </div>
   );
 }
