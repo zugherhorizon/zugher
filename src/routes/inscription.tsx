@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, type FormEvent } from "react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/inscription")({
   head: () => ({
@@ -17,16 +18,18 @@ export const Route = createFileRoute("/inscription")({
 });
 
 const PROFILS = [
-  "Entrepreneur",
-  "Entreprise",
-  "Agence publique",
-  "Institution financière",
-  "Association",
-  "Investisseur",
-  "Prestataire",
-  "Compétence",
-  "École / Université",
+  { value: "entrepreneur", label: "Entrepreneur" },
+  { value: "entreprise", label: "Entreprise" },
+  { value: "agence_publique", label: "Agence publique" },
+  { value: "institution_financiere", label: "Institution financière" },
+  { value: "association", label: "Association" },
+  { value: "investisseur", label: "Investisseur" },
+  { value: "prestataire", label: "Prestataire" },
+  { value: "competence", label: "Compétence" },
+  { value: "ecole_universite", label: "École / Université" },
 ] as const;
+
+const PROFIL_VALUES = PROFILS.map((p) => p.value) as [string, ...string[]];
 
 const PAYS = [
   "France",
@@ -56,7 +59,7 @@ const schema = z
       .regex(/^[0-9+ ().-]*$/, "Numéro de téléphone invalide")
       .optional()
       .or(z.literal("")),
-    profil: z.enum(PROFILS, { message: "Sélectionnez un profil" }),
+    profil: z.enum(PROFIL_VALUES, { message: "Sélectionnez un profil" }),
     pays: z.string().trim().max(80).optional().or(z.literal("")),
   })
   .refine((d) => d.email.toLowerCase() === d.emailConfirm.toLowerCase(), {
@@ -88,14 +91,17 @@ function InscriptionPage() {
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const setField =
     (k: keyof FormState) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setForm((s) => ({ ...s, [k]: e.target.value }));
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setServerError(null);
     const result = schema.safeParse(form);
     if (!result.success) {
       const errs: Record<string, string> = {};
@@ -107,7 +113,33 @@ function InscriptionPage() {
       return;
     }
     setErrors({});
-    setSubmitted(true);
+    setSending(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: form.email.trim(),
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: `${window.location.origin}/confirm-email`,
+          data: {
+            first_name: form.firstName.trim(),
+            last_name: form.lastName.trim(),
+            phone: form.phone.trim(),
+            profile: form.profil,
+            country: form.pays.trim(),
+          },
+        },
+      });
+      if (error) throw error;
+      setSubmitted(true);
+    } catch (err) {
+      setServerError(
+        err instanceof Error
+          ? err.message
+          : "Une erreur est survenue. Réessayez dans un instant.",
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   const summary = useMemo(
@@ -115,7 +147,7 @@ function InscriptionPage() {
       nom: [form.firstName, form.lastName].filter(Boolean).join(" ") || "—",
       email: form.email,
       tel: form.phone || "—",
-      profil: form.profil,
+      profil: PROFILS.find((p) => p.value === form.profil)?.label ?? "—",
       pays: form.pays || "—",
     }),
     [form],
@@ -124,16 +156,26 @@ function InscriptionPage() {
   if (submitted) {
     return (
       <section className="zg-stub" style={{ maxWidth: 720 }}>
-        <div className="zg-stub-tag">Inscription · Confirmation</div>
+        <div className="zg-stub-tag">Inscription · Vérification</div>
         <h1 className="zg-h1" style={{ fontSize: "clamp(32px, 4vw, 48px)" }}>
-          Bienvenue sur <em>zugher</em>.
+          Vérifiez votre <em>boîte mail</em>.
         </h1>
         <p className="zg-lead">
-          Votre compte est en cours de création. Un e-mail de confirmation a été envoyé à{" "}
-          <strong>{summary.email}</strong>.
+          Nous venons d'envoyer un lien de confirmation à{" "}
+          <strong>{summary.email}</strong>. Cliquez sur le lien dans l'e-mail pour
+          activer votre compte zugher.
         </p>
 
         <div className="zg-gate-note" style={{ marginTop: 24 }}>
+          <strong>Important</strong>
+          <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
+            Votre espace privé reste verrouillé tant que l'adresse n'est pas
+            confirmée. Si vous ne recevez rien dans 5 minutes, vérifiez vos
+            spams ou recommencez l'inscription avec la même adresse.
+          </p>
+        </div>
+
+        <div className="zg-gate-note" style={{ marginTop: 16 }}>
           <strong>Récapitulatif</strong>
           <ul className="zg-list" style={{ marginTop: 8 }}>
             <li><strong>Identité :</strong> {summary.nom}</li>
@@ -145,7 +187,16 @@ function InscriptionPage() {
         </div>
 
         <div className="zg-actions" style={{ marginTop: 24 }}>
-          <Link to="/dashboard" className="zg-btn zg-btn-primary">Accéder à mon espace</Link>
+          <button
+            type="button"
+            onClick={() => {
+              setSubmitted(false);
+              setServerError(null);
+            }}
+            className="zg-btn zg-btn-ghost"
+          >
+            Renvoyer un lien
+          </button>
           <Link to="/" className="zg-btn zg-btn-ghost">Retour à l'accueil</Link>
         </div>
       </section>
@@ -159,8 +210,9 @@ function InscriptionPage() {
         Rejoignez <em>zugher</em>.
       </h1>
       <p className="zg-lead">
-        Quelques informations pour créer votre compte. Seuls l'<strong>e-mail</strong> et le{" "}
-        <strong>profil</strong> sont obligatoires — vous compléterez le reste plus tard.
+        Seuls l'<strong>e-mail</strong> et le <strong>profil</strong> sont
+        obligatoires. Vous recevrez un lien de vérification par e-mail pour
+        activer votre compte.
       </p>
 
       <form onSubmit={onSubmit} className="zg-form" style={{ marginTop: 28 }} noValidate>
@@ -236,7 +288,7 @@ function InscriptionPage() {
             >
               <option value="">— Sélectionnez votre profil —</option>
               {PROFILS.map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p.value} value={p.value}>{p.label}</option>
               ))}
             </select>
           </Field>
@@ -250,13 +302,17 @@ function InscriptionPage() {
           </Field>
         </div>
 
+        {serverError && <div className="zg-error">{serverError}</div>}
+
         <p className="zg-help">
-          En créant un compte, vous acceptez les conditions d'utilisation et la politique de
-          confidentialité de zugher (RGPD).
+          En créant un compte, vous acceptez les conditions d'utilisation et la
+          politique de confidentialité de zugher (RGPD).
         </p>
 
         <div className="zg-actions" style={{ marginTop: 16 }}>
-          <button type="submit" className="zg-btn zg-btn-primary">Créer mon compte</button>
+          <button type="submit" disabled={sending} className="zg-btn zg-btn-primary">
+            {sending ? "Envoi du lien…" : "Créer mon compte"}
+          </button>
           <Link to="/" className="zg-btn zg-btn-ghost">Annuler</Link>
         </div>
       </form>
