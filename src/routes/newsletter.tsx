@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { StubPage } from "@/components/zugher/StubPage";
+import { InscriptionForm } from "@/components/zugher/InscriptionForm";
 
 export const Route = createFileRoute("/newsletter")({
-  head: () => ({ meta: [{ title: "Newsletter — zugher." }] }),
-  component: () => (
-    <StubPage
-      tag="Nous rejoindre"
-      title={
-        <>
-          Une <em>lettre mensuelle</em>, sans bruit.
-        </>
-      }
-      lead="Veille territoires, opportunités sélectionnées, nouveautés produit. Branchement tlistemail en Phase 1."
-    />
-  ),
+  head: () => ({
+    meta: [
+      { title: "Newsletter — zugher." },
+      {
+        name: "description",
+        content:
+          "Abonnez-vous à la lettre mensuelle zugher : veille territoires, opportunités sélectionnées, nouveautés produit. L'inscription crée automatiquement votre compte.",
+      },
+    ],
+  }),
+  component: () => <InscriptionForm mode="newsletter" />,
 });
