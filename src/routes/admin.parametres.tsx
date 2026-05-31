@@ -23,6 +23,12 @@ function AdminSettingsPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  type CalRow = { id: string; summary: string; primary: boolean; accessRole?: string };
+  const [cals, setCals] = useState<CalRow[] | null>(null);
+  const [currentTarget, setCurrentTarget] = useState<string>("primary");
+  const [calsError, setCalsError] = useState<string | null>(null);
+  const fetchCals = useServerFn(listAdminCalendars);
+
   useEffect(() => {
     supabase
       .from("site_settings")
@@ -34,6 +40,20 @@ function AdminSettingsPage() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetchCals()
+      .then((r) => {
+        if (r.ok) {
+          setCals(r.calendars);
+          setCurrentTarget(r.currentTarget);
+        } else {
+          setCalsError(r.error);
+        }
+      })
+      .catch((e) => setCalsError(String(e?.message ?? e)));
+  }, [isAdmin, fetchCals]);
 
   if (authLoading || roleLoading) {
     return <section className="zg-stub"><p className="zg-lead">Chargement…</p></section>;
