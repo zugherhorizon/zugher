@@ -134,6 +134,7 @@ function InscriptionPage() {
         },
       });
       if (error) throw error;
+      setSentAt(Date.now());
       setSubmitted(true);
     } catch (err) {
       setServerError(
