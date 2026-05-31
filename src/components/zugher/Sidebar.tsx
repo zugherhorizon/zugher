@@ -18,6 +18,7 @@ const groups: NavGroup[] = [
     title: "Grand public · BtoC",
     items: [
       { to: "/opportunites", label: "Banque d'opportunités" },
+      { to: "/business-plan", label: "Business Plan IA" },
       { to: "/parcours", label: "Parcours porteur" },
       { to: "/investisseurs", label: "Espace investisseurs" },
       { to: "/competences", label: "Espace compétences" },
