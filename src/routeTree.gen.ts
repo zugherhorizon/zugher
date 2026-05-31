@@ -25,6 +25,7 @@ import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
+import { Route as AdminLeadsRouteImport } from './routes/admin.leads'
 
 const TerritoireRoute = TerritoireRouteImport.update({
   id: '/territoire',
@@ -106,6 +107,11 @@ const AdminParametresRoute = AdminParametresRouteImport.update({
   path: '/admin/parametres',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLeadsRoute = AdminLeadsRouteImport.update({
+  id: '/admin/leads',
+  path: '/admin/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
+  '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
+  '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/parcours': typeof ParcoursRoute
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
+  '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/parcours'
     | '/pro'
     | '/territoire'
+    | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/parcours'
     | '/pro'
     | '/territoire'
+    | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
   id:
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/parcours'
     | '/pro'
     | '/territoire'
+    | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
   fileRoutesById: FileRoutesById
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   ParcoursRoute: typeof ParcoursRoute
   ProRoute: typeof ProRoute
   TerritoireRoute: typeof TerritoireRoute
+  AdminLeadsRoute: typeof AdminLeadsRoute
   AdminParametresRoute: typeof AdminParametresRoute
   ApiChatRoute: typeof ApiChatRoute
 }
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminParametresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/leads': {
+      id: '/admin/leads'
+      path: '/admin/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AdminLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParcoursRoute: ParcoursRoute,
   ProRoute: ProRoute,
   TerritoireRoute: TerritoireRoute,
+  AdminLeadsRoute: AdminLeadsRoute,
   AdminParametresRoute: AdminParametresRoute,
   ApiChatRoute: ApiChatRoute,
 }
