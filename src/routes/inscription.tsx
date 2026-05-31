@@ -229,6 +229,8 @@ function InscriptionPage() {
             <li><strong>Téléphone :</strong> {summary.tel}</li>
             <li><strong>Profil :</strong> {summary.profil}</li>
             <li><strong>Pays :</strong> {summary.pays}</li>
+            <li><strong>Localisation :</strong> {summary.localisation}</li>
+            <li><strong>Secteur d'activité :</strong> {summary.secteur}</li>
           </ul>
         </div>
 
