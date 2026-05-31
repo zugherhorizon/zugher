@@ -255,17 +255,44 @@ export const bookAppointment = createServerFn({ method: "POST" })
       return { ok: false as const, error: "Ce créneau vient d'être réservé. Choisissez-en un autre." };
     }
 
+    // Fetch full prospect profile for the calendar event
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select(
+        "first_name,last_name,phone,profile,audience,country,region,department,city,sector,territory,needs",
+      )
+      .eq("id", userId)
+      .maybeSingle();
+
+    const fullName =
+      [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim() ||
+      data.contactName;
+    const phone = data.contactPhone || profile?.phone || null;
+    const location = [profile?.city, profile?.department, profile?.region, profile?.country]
+      .filter(Boolean)
+      .join(" · ");
+
+    const descLines: (string | null)[] = [
+      `RDV ${data.format === "video" ? "visio Google Meet" : "appel téléphonique"} — 30 min`,
+      "",
+      "— Prospect —",
+      `Nom : ${fullName}`,
+      `Email : ${email}`,
+      phone ? `Téléphone : ${phone}` : null,
+      profile?.profile ? `Profil : ${profile.profile}` : null,
+      profile?.audience ? `Audience : ${profile.audience}` : null,
+      profile?.sector ? `Secteur : ${profile.sector}` : null,
+      location ? `Localisation : ${location}` : null,
+      profile?.territory ? `Territoire ciblé : ${profile.territory}` : null,
+      profile?.needs ? `\nBesoins exprimés :\n${profile.needs}` : null,
+      data.notes ? `\n— Commentaire du prospect —\n${data.notes}` : null,
+    ];
+
     const googleResult = await createGoogleEvent({
       startsAt: data.startsAt,
       endsAt: data.endsAt,
-      summary: `zugher · RDV ${data.format === "video" ? "visio" : "appel"} avec ${data.contactName}`,
-      description: [
-        `Contact : ${data.contactName} <${email}>`,
-        data.contactPhone ? `Téléphone : ${data.contactPhone}` : null,
-        data.notes ? `\nNotes :\n${data.notes}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n"),
+      summary: `zugher · RDV ${data.format === "video" ? "visio" : "appel"} — ${fullName}`,
+      description: descLines.filter((l) => l !== null).join("\n"),
       format: data.format,
       attendeeEmail: email,
     });
