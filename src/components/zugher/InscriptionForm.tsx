@@ -300,12 +300,17 @@ export function InscriptionForm({ mode = "account", defaults }: Props) {
           </Field>
         )}
 
-        {form.audience === "pro" && !isNewsletter && (
+        {form.audience === "pro" && (
           <Field
-            label="Vos besoins (préparation du rendez-vous)"
+            label={
+              isNewsletter
+                ? "Vos besoins (contexte de l'abonnement)"
+                : "Vos besoins (préparation du rendez-vous)"
+            }
             required
             error={errors.needs}
           >
+
             <textarea
               required
               value={form.needs}
