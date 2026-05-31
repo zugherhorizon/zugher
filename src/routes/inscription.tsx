@@ -92,8 +92,11 @@ function InscriptionPage() {
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sentAt, setSentAt] = useState<number | null>(null);
   const [sending, setSending] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const { settings } = useSiteSettings();
+  const timeoutMin = settings.email_verification_timeout_minutes;
 
   const setField =
     (k: keyof FormState) =>
