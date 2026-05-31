@@ -171,12 +171,14 @@ function InscriptionPage() {
           activer votre compte zugher.
         </p>
 
-        <div className="zg-gate-note" style={{ marginTop: 24 }}>
+        <Countdown sentAt={sentAt} timeoutMin={timeoutMin} />
+
+        <div className="zg-gate-note" style={{ marginTop: 16 }}>
           <strong>Important</strong>
           <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
             Votre espace privé reste verrouillé tant que l'adresse n'est pas
-            confirmée. Si vous ne recevez rien dans 5 minutes, vérifiez vos
-            spams ou recommencez l'inscription avec la même adresse.
+            confirmée. Si vous ne recevez rien dans {timeoutMin} minute{timeoutMin > 1 ? "s" : ""},
+            vérifiez vos spams ou demandez un nouveau lien.
           </p>
         </div>
 
