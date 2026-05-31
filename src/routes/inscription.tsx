@@ -349,3 +349,42 @@ function Field({
     </label>
   );
 }
+
+function Countdown({ sentAt, timeoutMin }: { sentAt: number | null; timeoutMin: number }) {
+  const totalMs = timeoutMin * 60_000;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!sentAt) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [sentAt]);
+  if (!sentAt) return null;
+  const remaining = Math.max(0, totalMs - (now - sentAt));
+  const mm = Math.floor(remaining / 60_000);
+  const ss = Math.floor((remaining % 60_000) / 1000).toString().padStart(2, "0");
+  const expired = remaining === 0;
+  return (
+    <div
+      className="zg-gate-note"
+      style={{
+        marginTop: 24,
+        borderColor: expired ? "var(--terra)" : undefined,
+      }}
+    >
+      <strong>{expired ? "Délai expiré" : "Temps restant pour confirmer"}</strong>
+      <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
+        {expired ? (
+          <>Le délai de {timeoutMin} minute{timeoutMin > 1 ? "s" : ""} est écoulé. Demandez un nouveau lien ci-dessous.</>
+        ) : (
+          <>
+            Cliquez sur le lien dans votre e-mail dans les{" "}
+            <strong style={{ fontVariantNumeric: "tabular-nums" }}>
+              {mm}:{ss}
+            </strong>{" "}
+            qui suivent.
+          </>
+        )}
+      </p>
+    </div>
+  );
+}
