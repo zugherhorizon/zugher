@@ -795,7 +795,8 @@ body::before {
   color: var(--ink-soft);
 }
 .zg-field input,
-.zg-field textarea {
+.zg-field textarea,
+.zg-field select {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--line);
@@ -807,12 +808,24 @@ body::before {
   resize: vertical;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+.zg-field select {
+  appearance: none;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
 .zg-field input:focus,
-.zg-field textarea:focus {
+.zg-field textarea:focus,
+.zg-field select:focus {
   outline: none;
   border-color: var(--terra);
   box-shadow: 0 0 0 3px rgba(var(--terra-rgb, 200, 92, 60), 0.12);
 }
+
 .zg-help {
   font-size: 12px;
   color: var(--ink-mute);
