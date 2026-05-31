@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          country: string | null
+          created_at: string
+          data_completed: boolean
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          profile: Database["public"]["Enums"]["user_profile"]
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          data_completed?: boolean
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          profile: Database["public"]["Enums"]["user_profile"]
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          data_completed?: boolean
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          profile?: Database["public"]["Enums"]["user_profile"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +58,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_profile:
+        | "entrepreneur"
+        | "entreprise"
+        | "agence_publique"
+        | "institution_financiere"
+        | "association"
+        | "investisseur"
+        | "prestataire"
+        | "competence"
+        | "ecole_universite"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +194,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_profile: [
+        "entrepreneur",
+        "entreprise",
+        "agence_publique",
+        "institution_financiere",
+        "association",
+        "investisseur",
+        "prestataire",
+        "competence",
+        "ecole_universite",
+      ],
+    },
   },
 } as const
