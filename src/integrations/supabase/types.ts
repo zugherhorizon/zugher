@@ -17,7 +17,7 @@ export type Database = {
       profiles: {
         Row: {
           city: string | null
-          country: string | null
+          country: string
           created_at: string
           data_completed: boolean
           department: string | null
@@ -32,7 +32,7 @@ export type Database = {
         }
         Insert: {
           city?: string | null
-          country?: string | null
+          country: string
           created_at?: string
           data_completed?: boolean
           department?: string | null
@@ -47,7 +47,7 @@ export type Database = {
         }
         Update: {
           city?: string | null
-          country?: string | null
+          country?: string
           created_at?: string
           data_completed?: boolean
           department?: string | null
