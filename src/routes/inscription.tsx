@@ -47,6 +47,26 @@ const PAYS = [
   "Autre",
 ];
 
+const SECTEURS = [
+  "Agriculture & Agroalimentaire",
+  "Artisanat",
+  "Commerce & Distribution",
+  "Construction & BTP",
+  "Culture, Arts & Médias",
+  "Éducation & Formation",
+  "Énergie & Environnement",
+  "Finance & Assurance",
+  "Industrie & Manufacturing",
+  "Immobilier",
+  "Numérique & Tech",
+  "Santé & Bien-être",
+  "Services aux entreprises",
+  "Services à la personne",
+  "Tourisme & Hôtellerie",
+  "Transport & Logistique",
+  "Autre",
+];
+
 const schema = z
   .object({
     firstName: z.string().trim().max(80).optional().or(z.literal("")),
@@ -62,6 +82,10 @@ const schema = z
       .or(z.literal("")),
     profil: z.enum(PROFIL_VALUES, { message: "Sélectionnez un profil" }),
     pays: z.string().trim().max(80).optional().or(z.literal("")),
+    region: z.string().trim().max(120).optional().or(z.literal("")),
+    departement: z.string().trim().max(120).optional().or(z.literal("")),
+    ville: z.string().trim().max(120).optional().or(z.literal("")),
+    secteur: z.string().trim().max(120).optional().or(z.literal("")),
   })
   .refine((d) => d.email.toLowerCase() === d.emailConfirm.toLowerCase(), {
     path: ["emailConfirm"],
@@ -76,6 +100,10 @@ type FormState = {
   phone: string;
   profil: string;
   pays: string;
+  region: string;
+  departement: string;
+  ville: string;
+  secteur: string;
 };
 
 const initial: FormState = {
@@ -86,6 +114,10 @@ const initial: FormState = {
   phone: "",
   profil: "",
   pays: "",
+  region: "",
+  departement: "",
+  ville: "",
+  secteur: "",
 };
 
 function InscriptionPage() {
@@ -130,6 +162,10 @@ function InscriptionPage() {
             phone: form.phone.trim(),
             profile: form.profil,
             country: form.pays.trim(),
+            region: form.region.trim(),
+            department: form.departement.trim(),
+            city: form.ville.trim(),
+            sector: form.secteur.trim(),
           },
         },
       });
@@ -154,6 +190,9 @@ function InscriptionPage() {
       tel: form.phone || "—",
       profil: PROFILS.find((p) => p.value === form.profil)?.label ?? "—",
       pays: form.pays || "—",
+      localisation:
+        [form.ville, form.departement, form.region].filter(Boolean).join(", ") || "—",
+      secteur: form.secteur || "—",
     }),
     [form],
   );
@@ -190,6 +229,8 @@ function InscriptionPage() {
             <li><strong>Téléphone :</strong> {summary.tel}</li>
             <li><strong>Profil :</strong> {summary.profil}</li>
             <li><strong>Pays :</strong> {summary.pays}</li>
+            <li><strong>Localisation :</strong> {summary.localisation}</li>
+            <li><strong>Secteur d'activité :</strong> {summary.secteur}</li>
           </ul>
         </div>
 
@@ -304,6 +345,49 @@ function InscriptionPage() {
               <option value="">— Sélectionnez votre pays —</option>
               {PAYS.map((p) => (
                 <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
+        <div className="zg-grid-2">
+          <Field label="Région" error={errors.region}>
+            <input
+              type="text"
+              value={form.region}
+              onChange={setField("region")}
+              maxLength={120}
+              placeholder="Nouvelle-Aquitaine"
+              autoComplete="address-level1"
+            />
+          </Field>
+          <Field label="Département" error={errors.departement}>
+            <input
+              type="text"
+              value={form.departement}
+              onChange={setField("departement")}
+              maxLength={120}
+              placeholder="Gironde (33)"
+            />
+          </Field>
+        </div>
+
+        <div className="zg-grid-2">
+          <Field label="Ville" error={errors.ville}>
+            <input
+              type="text"
+              value={form.ville}
+              onChange={setField("ville")}
+              maxLength={120}
+              placeholder="Bordeaux"
+              autoComplete="address-level2"
+            />
+          </Field>
+          <Field label="Secteur d'activité" error={errors.secteur}>
+            <select value={form.secteur} onChange={setField("secteur")}>
+              <option value="">— Sélectionnez un secteur —</option>
+              {SECTEURS.map((s) => (
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </Field>
