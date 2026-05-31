@@ -16,36 +16,48 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          city: string | null
           country: string | null
           created_at: string
           data_completed: boolean
+          department: string | null
           first_name: string | null
           id: string
           last_name: string | null
           phone: string | null
           profile: Database["public"]["Enums"]["user_profile"]
+          region: string | null
+          sector: string | null
           updated_at: string
         }
         Insert: {
+          city?: string | null
           country?: string | null
           created_at?: string
           data_completed?: boolean
+          department?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
           phone?: string | null
           profile: Database["public"]["Enums"]["user_profile"]
+          region?: string | null
+          sector?: string | null
           updated_at?: string
         }
         Update: {
+          city?: string | null
           country?: string | null
           created_at?: string
           data_completed?: boolean
+          department?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           phone?: string | null
           profile?: Database["public"]["Enums"]["user_profile"]
+          region?: string | null
+          sector?: string | null
           updated_at?: string
         }
         Relationships: []
