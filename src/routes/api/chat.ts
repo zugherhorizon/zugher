@@ -82,7 +82,7 @@ export const Route = createFileRoute("/api/chat")({
           await supabaseAdmin.from("chat_messages").insert({
             session_id: sessionId,
             role: "user",
-            parts: lastMsg.parts as unknown as object,
+            parts: lastMsg.parts as never,
           });
         }
 
@@ -104,7 +104,7 @@ export const Route = createFileRoute("/api/chat")({
             await supabaseAdmin.from("chat_messages").insert({
               session_id: sessionId,
               role: "assistant",
-              parts: last.parts as unknown as object,
+              parts: last.parts as never,
             });
           },
         });
