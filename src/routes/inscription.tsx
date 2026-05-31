@@ -258,9 +258,9 @@ function InscriptionPage() {
         Rejoignez <em>zugher</em>.
       </h1>
       <p className="zg-lead">
-        Seuls l'<strong>e-mail</strong> et le <strong>profil</strong> sont
-        obligatoires. Vous recevrez un lien de vérification par e-mail pour
-        activer votre compte.
+        L'<strong>e-mail</strong>, le <strong>profil</strong> et le{" "}
+        <strong>pays</strong> sont obligatoires. Vous recevrez un lien de
+        vérification par e-mail pour activer votre compte.
       </p>
 
       <form onSubmit={onSubmit} className="zg-form" style={{ marginTop: 28 }} noValidate>
