@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          contact_email: string
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          ends_at: string
+          format: string
+          google_event_id: string | null
+          id: string
+          meeting_link: string | null
+          notes: string | null
+          starts_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          ends_at: string
+          format: string
+          google_event_id?: string | null
+          id?: string
+          meeting_link?: string | null
+          notes?: string | null
+          starts_at: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          ends_at?: string
+          format?: string
+          google_event_id?: string | null
+          id?: string
+          meeting_link?: string | null
+          notes?: string | null
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string
