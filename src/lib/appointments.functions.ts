@@ -36,6 +36,10 @@ function generateBaseSlots(): Slot[] {
   return slots;
 }
 
+function getTargetCalendarId(): string {
+  return process.env.GOOGLE_CALENDAR_ID?.trim() || "primary";
+}
+
 async function fetchGoogleBusy(
   timeMin: string,
   timeMax: string,
@@ -43,6 +47,7 @@ async function fetchGoogleBusy(
   const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
   const lovableKey = process.env.LOVABLE_API_KEY;
   if (!apiKey || !lovableKey) return null;
+  const calendarId = getTargetCalendarId();
   try {
     const res = await fetch(
       "https://connector-gateway.lovable.dev/google_calendar/calendar/v3/freeBusy",
@@ -56,7 +61,7 @@ async function fetchGoogleBusy(
         body: JSON.stringify({
           timeMin,
           timeMax,
-          items: [{ id: "primary" }],
+          items: [{ id: calendarId }],
         }),
       },
     );
@@ -65,14 +70,56 @@ async function fetchGoogleBusy(
       return null;
     }
     const json = (await res.json()) as {
-      calendars?: { primary?: { busy?: { start: string; end: string }[] } };
+      calendars?: Record<string, { busy?: { start: string; end: string }[] }>;
     };
-    return json.calendars?.primary?.busy ?? [];
+    return json.calendars?.[calendarId]?.busy ?? [];
   } catch (e) {
     console.error("Google freeBusy error", e);
     return null;
   }
 }
+
+export const listAdminCalendars = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    if (!isAdmin) return { ok: false as const, error: "Accès refusé." };
+
+    const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
+    const lovableKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey || !lovableKey) {
+      return { ok: false as const, error: "Google Calendar non connecté." };
+    }
+    const res = await fetch(
+      "https://connector-gateway.lovable.dev/google_calendar/calendar/v3/users/me/calendarList",
+      {
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "X-Connection-Api-Key": apiKey,
+        },
+      },
+    );
+    if (!res.ok) {
+      return { ok: false as const, error: `Google API ${res.status}` };
+    }
+    const json = (await res.json()) as {
+      items?: { id: string; summary: string; primary?: boolean; accessRole?: string }[];
+    };
+    return {
+      ok: true as const,
+      currentTarget: getTargetCalendarId(),
+      calendars: (json.items ?? []).map((c) => ({
+        id: c.id,
+        summary: c.summary,
+        primary: !!c.primary,
+        accessRole: c.accessRole,
+      })),
+    };
+  });
 
 export const listAvailableSlots = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -155,7 +202,7 @@ async function createGoogleEvent(args: {
       };
     }
     const res = await fetch(
-      "https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all",
+      `https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/${encodeURIComponent(getTargetCalendarId())}/events?conferenceDataVersion=1&sendUpdates=all`,
       {
         method: "POST",
         headers: {
