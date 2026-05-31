@@ -5,6 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export const Route = createFileRoute("/inscription")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    audience: typeof search.audience === "string" ? search.audience : undefined,
+    territory: typeof search.territory === "string" ? search.territory : undefined,
+    needs: typeof search.needs === "string" ? search.needs : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Inscription — zugher." },
@@ -69,6 +74,7 @@ const SECTEURS = [
 
 const schema = z
   .object({
+    audience: z.enum(["grand_public", "pro"], { message: "Choisissez un type de compte" }),
     firstName: z.string().trim().max(80).optional().or(z.literal("")),
     lastName: z.string().trim().max(80).optional().or(z.literal("")),
     email: z.string().trim().email("Adresse e-mail invalide").max(255),
@@ -86,13 +92,20 @@ const schema = z
     departement: z.string().trim().max(120).optional().or(z.literal("")),
     ville: z.string().trim().max(120).optional().or(z.literal("")),
     secteur: z.string().trim().max(120).optional().or(z.literal("")),
+    territory: z.string().trim().max(160).optional().or(z.literal("")),
+    needs: z.string().trim().max(2000).optional().or(z.literal("")),
   })
   .refine((d) => d.email.toLowerCase() === d.emailConfirm.toLowerCase(), {
     path: ["emailConfirm"],
     message: "Les deux adresses e-mail ne correspondent pas",
+  })
+  .refine((d) => d.audience !== "pro" || (d.needs && d.needs.trim().length >= 20), {
+    path: ["needs"],
+    message: "Pour un compte professionnel, détaillez vos besoins (20 caractères min.)",
   });
 
 type FormState = {
+  audience: "" | "grand_public" | "pro";
   firstName: string;
   lastName: string;
   email: string;
@@ -104,9 +117,12 @@ type FormState = {
   departement: string;
   ville: string;
   secteur: string;
+  territory: string;
+  needs: string;
 };
 
 const initial: FormState = {
+  audience: "",
   firstName: "",
   lastName: "",
   email: "",
@@ -118,10 +134,21 @@ const initial: FormState = {
   departement: "",
   ville: "",
   secteur: "",
+  territory: "",
+  needs: "",
 };
 
 function InscriptionPage() {
-  const [form, setForm] = useState<FormState>(initial);
+  const search = Route.useSearch();
+  const [form, setForm] = useState<FormState>(() => ({
+    ...initial,
+    audience:
+      search.audience === "grand_public" || search.audience === "pro"
+        ? search.audience
+        : "",
+    territory: search.territory ?? "",
+    needs: search.needs ?? "",
+  }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [sentAt, setSentAt] = useState<number | null>(null);
@@ -132,7 +159,11 @@ function InscriptionPage() {
 
   const setField =
     (k: keyof FormState) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+    ) =>
       setForm((s) => ({ ...s, [k]: e.target.value }));
 
   const onSubmit = async (e: FormEvent) => {
@@ -166,6 +197,9 @@ function InscriptionPage() {
             department: form.departement.trim(),
             city: form.ville.trim(),
             sector: form.secteur.trim(),
+            audience: form.audience,
+            territory: form.territory.trim(),
+            needs: form.needs.trim(),
           },
         },
       });
@@ -213,13 +247,21 @@ function InscriptionPage() {
         <Countdown sentAt={sentAt} timeoutMin={timeoutMin} />
 
         <div className="zg-gate-note" style={{ marginTop: 16 }}>
-          <strong>Important</strong>
+          <strong>Prochaine étape</strong>
           <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
-            Votre espace privé reste verrouillé tant que l'adresse n'est pas
-            confirmée. Si vous ne recevez rien dans {timeoutMin} minute{timeoutMin > 1 ? "s" : ""},
-            vérifiez vos spams ou demandez un nouveau lien.
+            {form.audience === "pro" ? (
+              <>Après confirmation, notre équipe revient vers vous sous 48h
+              ouvrées pour caler un <strong>appel ou un rendez-vous</strong> à
+              partir des besoins que vous nous avez transmis.</>
+            ) : (
+              <>Après confirmation, vous recevrez le lien vers la{" "}
+              <strong>place de marché</strong>
+              {form.territory ? <> de <strong>{form.territory}</strong></> : null}
+              {" "}directement dans votre espace privé.</>
+            )}
           </p>
         </div>
+
 
         <div className="zg-gate-note" style={{ marginTop: 16 }}>
           <strong>Récapitulatif</strong>
@@ -258,12 +300,56 @@ function InscriptionPage() {
         Rejoignez <em>zugher</em>.
       </h1>
       <p className="zg-lead">
-        L'<strong>e-mail</strong>, le <strong>profil</strong> et le{" "}
-        <strong>pays</strong> sont obligatoires. Vous recevrez un lien de
-        vérification par e-mail pour activer votre compte.
+        L'<strong>e-mail</strong>, le <strong>type de compte</strong>, le{" "}
+        <strong>profil</strong> et le <strong>pays</strong> sont obligatoires.
+        Vous recevrez un lien de vérification par e-mail pour activer votre compte.
       </p>
 
       <form onSubmit={onSubmit} className="zg-form" style={{ marginTop: 28 }} noValidate>
+        <Field label="Type de compte" required error={errors.audience}>
+          <select
+            required
+            value={form.audience}
+            onChange={setField("audience")}
+            aria-invalid={!!errors.audience}
+          >
+            <option value="">— Sélectionnez —</option>
+            <option value="grand_public">Grand public (particulier / investisseur individuel)</option>
+            <option value="pro">Professionnel (entreprise, agence, institution, association…)</option>
+          </select>
+        </Field>
+
+        {form.audience === "grand_public" && (
+          <Field label="Territoire d'intérêt" error={errors.territory}>
+            <input
+              type="text"
+              value={form.territory}
+              onChange={setField("territory")}
+              maxLength={160}
+              placeholder="Ex. Nouvelle-Aquitaine, Dakar, Tunis…"
+            />
+          </Field>
+        )}
+
+        {form.audience === "pro" && (
+          <Field
+            label="Vos besoins (préparation du rendez-vous)"
+            required
+            error={errors.needs}
+          >
+            <textarea
+              required
+              value={form.needs}
+              onChange={setField("needs")}
+              maxLength={2000}
+              rows={5}
+              placeholder="Décrivez votre projet, le territoire ciblé, vos attentes, votre calendrier, toute information utile pour préparer notre appel ou rendez-vous."
+              aria-invalid={!!errors.needs}
+            />
+          </Field>
+        )}
+
+
         <div className="zg-grid-2">
           <Field label="Prénom">
             <input

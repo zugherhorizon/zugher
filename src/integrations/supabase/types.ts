@@ -14,8 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          parts: Json
+          role: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          parts: Json
+          role: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          parts?: Json
+          role?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          audience: Database["public"]["Enums"]["audience_type"] | null
+          created_at: string
+          id: string
+          lead_email: string | null
+          lead_name: string | null
+          notes: string | null
+          territory: string | null
+          updated_at: string
+          visitor_id: string
+        }
+        Insert: {
+          audience?: Database["public"]["Enums"]["audience_type"] | null
+          created_at?: string
+          id?: string
+          lead_email?: string | null
+          lead_name?: string | null
+          notes?: string | null
+          territory?: string | null
+          updated_at?: string
+          visitor_id: string
+        }
+        Update: {
+          audience?: Database["public"]["Enums"]["audience_type"] | null
+          created_at?: string
+          id?: string
+          lead_email?: string | null
+          lead_name?: string | null
+          notes?: string | null
+          territory?: string | null
+          updated_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          audience: Database["public"]["Enums"]["audience_type"] | null
           city: string | null
           country: string
           created_at: string
@@ -24,13 +93,16 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          needs: string | null
           phone: string | null
           profile: Database["public"]["Enums"]["user_profile"]
           region: string | null
           sector: string | null
+          territory: string | null
           updated_at: string
         }
         Insert: {
+          audience?: Database["public"]["Enums"]["audience_type"] | null
           city?: string | null
           country: string
           created_at?: string
@@ -39,13 +111,16 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          needs?: string | null
           phone?: string | null
           profile: Database["public"]["Enums"]["user_profile"]
           region?: string | null
           sector?: string | null
+          territory?: string | null
           updated_at?: string
         }
         Update: {
+          audience?: Database["public"]["Enums"]["audience_type"] | null
           city?: string | null
           country?: string
           created_at?: string
@@ -54,10 +129,12 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          needs?: string | null
           phone?: string | null
           profile?: Database["public"]["Enums"]["user_profile"]
           region?: string | null
           sector?: string | null
+          territory?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -119,6 +196,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      audience_type: "grand_public" | "pro"
       user_profile:
         | "entrepreneur"
         | "entreprise"
@@ -257,6 +335,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      audience_type: ["grand_public", "pro"],
       user_profile: [
         "entrepreneur",
         "entreprise",

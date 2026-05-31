@@ -23,6 +23,7 @@ import { Route as CompetencesRouteImport } from './routes/competences'
 import { Route as BusinessPlanRouteImport } from './routes/business-plan'
 import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
 
 const TerritoireRoute = TerritoireRouteImport.update({
@@ -95,6 +96,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminParametresRoute = AdminParametresRouteImport.update({
   id: '/admin/parametres',
   path: '/admin/parametres',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
   '/admin/parametres': typeof AdminParametresRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
   '/admin/parametres': typeof AdminParametresRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/pro': typeof ProRoute
   '/territoire': typeof TerritoireRoute
   '/admin/parametres': typeof AdminParametresRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/territoire'
     | '/admin/parametres'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/territoire'
     | '/admin/parametres'
+    | '/api/chat'
   id:
     | '__root__'
     | '/'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/pro'
     | '/territoire'
     | '/admin/parametres'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -223,6 +235,7 @@ export interface RootRouteChildren {
   ProRoute: typeof ProRoute
   TerritoireRoute: typeof TerritoireRoute
   AdminParametresRoute: typeof AdminParametresRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/parametres': {
       id: '/admin/parametres'
       path: '/admin/parametres'
@@ -351,6 +371,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProRoute: ProRoute,
   TerritoireRoute: TerritoireRoute,
   AdminParametresRoute: AdminParametresRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
