@@ -18,6 +18,7 @@ import { Route as InvestisseursRouteImport } from './routes/investisseurs'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CompetencesRouteImport } from './routes/competences'
+import { Route as BusinessPlanRouteImport } from './routes/business-plan'
 import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -66,6 +67,11 @@ const CompetencesRoute = CompetencesRouteImport.update({
   path: '/competences',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BusinessPlanRoute = BusinessPlanRouteImport.update({
+  id: '/business-plan',
+  path: '/business-plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApplicationsRoute = ApplicationsRouteImport.update({
   id: '/applications',
   path: '/applications',
@@ -80,6 +86,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/applications': typeof ApplicationsRoute
+  '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/applications': typeof ApplicationsRoute
+  '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/applications': typeof ApplicationsRoute
+  '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/applications'
+    | '/business-plan'
     | '/competences'
     | '/contact'
     | '/dashboard'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/applications'
+    | '/business-plan'
     | '/competences'
     | '/contact'
     | '/dashboard'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/applications'
+    | '/business-plan'
     | '/competences'
     | '/contact'
     | '/dashboard'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApplicationsRoute: typeof ApplicationsRoute
+  BusinessPlanRoute: typeof BusinessPlanRoute
   CompetencesRoute: typeof CompetencesRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompetencesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/business-plan': {
+      id: '/business-plan'
+      path: '/business-plan'
+      fullPath: '/business-plan'
+      preLoaderRoute: typeof BusinessPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/applications': {
       id: '/applications'
       path: '/applications'
@@ -258,6 +278,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApplicationsRoute: ApplicationsRoute,
+  BusinessPlanRoute: BusinessPlanRoute,
   CompetencesRoute: CompetencesRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
