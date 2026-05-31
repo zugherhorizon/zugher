@@ -202,7 +202,7 @@ async function createGoogleEvent(args: {
       };
     }
     const res = await fetch(
-      "https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all",
+      `https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/${encodeURIComponent(getTargetCalendarId())}/events?conferenceDataVersion=1&sendUpdates=all`,
       {
         method: "POST",
         headers: {
