@@ -70,12 +70,12 @@ export const generateBusinessPlan = createServerFn({ method: "POST" })
 Sois concret, chiffré quand pertinent (en euros), et adapté au contexte territorial. Évite le jargon creux.`;
 
     try {
-      const { experimental_output } = await generateText({
+      const { output } = await generateText({
         model,
         prompt,
-        experimental_output: Output.object({ schema: BusinessPlanSchema }),
+        output: Output.object({ schema: BusinessPlanSchema }),
       });
-      return { ok: true as const, plan: experimental_output };
+      return { ok: true as const, plan: output };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erreur inconnue";
       const status = (err as { statusCode?: number })?.statusCode;
