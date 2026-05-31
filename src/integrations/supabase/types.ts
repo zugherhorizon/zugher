@@ -54,6 +54,7 @@ export type Database = {
           lead_email: string | null
           lead_name: string | null
           notes: string | null
+          status: Database["public"]["Enums"]["chat_session_status"]
           territory: string | null
           updated_at: string
           visitor_id: string
@@ -65,6 +66,7 @@ export type Database = {
           lead_email?: string | null
           lead_name?: string | null
           notes?: string | null
+          status?: Database["public"]["Enums"]["chat_session_status"]
           territory?: string | null
           updated_at?: string
           visitor_id: string
@@ -76,6 +78,7 @@ export type Database = {
           lead_email?: string | null
           lead_name?: string | null
           notes?: string | null
+          status?: Database["public"]["Enums"]["chat_session_status"]
           territory?: string | null
           updated_at?: string
           visitor_id?: string
@@ -197,6 +200,12 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       audience_type: "grand_public" | "pro"
+      chat_session_status:
+        | "new"
+        | "contacted"
+        | "qualified"
+        | "converted"
+        | "archived"
       user_profile:
         | "entrepreneur"
         | "entreprise"
@@ -336,6 +345,13 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       audience_type: ["grand_public", "pro"],
+      chat_session_status: [
+        "new",
+        "contacted",
+        "qualified",
+        "converted",
+        "archived",
+      ],
       user_profile: [
         "entrepreneur",
         "entreprise",
