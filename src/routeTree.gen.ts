@@ -17,7 +17,6 @@ import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as InvestisseursRouteImport } from './routes/investisseurs'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConfirmEmailRouteImport } from './routes/confirm-email'
 import { Route as CompetencesRouteImport } from './routes/competences'
 import { Route as BusinessPlanRouteImport } from './routes/business-plan'
@@ -67,11 +66,6 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ConfirmEmailRoute = ConfirmEmailRouteImport.update({
   id: '/confirm-email',
   path: '/confirm-email',
@@ -119,7 +113,6 @@ export interface FileRoutesByFullPath {
   '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/confirm-email': typeof ConfirmEmailRoute
-  '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
@@ -138,7 +131,6 @@ export interface FileRoutesByTo {
   '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/confirm-email': typeof ConfirmEmailRoute
-  '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
@@ -158,7 +150,6 @@ export interface FileRoutesById {
   '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/confirm-email': typeof ConfirmEmailRoute
-  '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
@@ -179,7 +170,6 @@ export interface FileRouteTypes {
     | '/business-plan'
     | '/competences'
     | '/confirm-email'
-    | '/contact'
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
@@ -198,7 +188,6 @@ export interface FileRouteTypes {
     | '/business-plan'
     | '/competences'
     | '/confirm-email'
-    | '/contact'
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
@@ -217,7 +206,6 @@ export interface FileRouteTypes {
     | '/business-plan'
     | '/competences'
     | '/confirm-email'
-    | '/contact'
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
@@ -237,7 +225,6 @@ export interface RootRouteChildren {
   BusinessPlanRoute: typeof BusinessPlanRoute
   CompetencesRoute: typeof CompetencesRoute
   ConfirmEmailRoute: typeof ConfirmEmailRoute
-  ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   InscriptionRoute: typeof InscriptionRoute
   InvestisseursRoute: typeof InvestisseursRoute
@@ -309,13 +296,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/confirm-email': {
       id: '/confirm-email'
       path: '/confirm-email'
@@ -381,7 +361,6 @@ const rootRouteChildren: RootRouteChildren = {
   BusinessPlanRoute: BusinessPlanRoute,
   CompetencesRoute: CompetencesRoute,
   ConfirmEmailRoute: ConfirmEmailRoute,
-  ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   InscriptionRoute: InscriptionRoute,
   InvestisseursRoute: InvestisseursRoute,
@@ -397,3 +376,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
