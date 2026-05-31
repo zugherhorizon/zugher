@@ -190,6 +190,9 @@ function InscriptionPage() {
       tel: form.phone || "—",
       profil: PROFILS.find((p) => p.value === form.profil)?.label ?? "—",
       pays: form.pays || "—",
+      localisation:
+        [form.ville, form.departement, form.region].filter(Boolean).join(", ") || "—",
+      secteur: form.secteur || "—",
     }),
     [form],
   );
