@@ -247,13 +247,21 @@ function InscriptionPage() {
         <Countdown sentAt={sentAt} timeoutMin={timeoutMin} />
 
         <div className="zg-gate-note" style={{ marginTop: 16 }}>
-          <strong>Important</strong>
+          <strong>Prochaine étape</strong>
           <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
-            Votre espace privé reste verrouillé tant que l'adresse n'est pas
-            confirmée. Si vous ne recevez rien dans {timeoutMin} minute{timeoutMin > 1 ? "s" : ""},
-            vérifiez vos spams ou demandez un nouveau lien.
+            {form.audience === "pro" ? (
+              <>Après confirmation, notre équipe revient vers vous sous 48h
+              ouvrées pour caler un <strong>appel ou un rendez-vous</strong> à
+              partir des besoins que vous nous avez transmis.</>
+            ) : (
+              <>Après confirmation, vous recevrez le lien vers la{" "}
+              <strong>place de marché</strong>
+              {form.territory ? <> de <strong>{form.territory}</strong></> : null}
+              {" "}directement dans votre espace privé.</>
+            )}
           </p>
         </div>
+
 
         <div className="zg-gate-note" style={{ marginTop: 16 }}>
           <strong>Récapitulatif</strong>
