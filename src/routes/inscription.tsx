@@ -159,7 +159,11 @@ function InscriptionPage() {
 
   const setField =
     (k: keyof FormState) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
+    ) =>
       setForm((s) => ({ ...s, [k]: e.target.value }));
 
   const onSubmit = async (e: FormEvent) => {
@@ -193,6 +197,9 @@ function InscriptionPage() {
             department: form.departement.trim(),
             city: form.ville.trim(),
             sector: form.secteur.trim(),
+            audience: form.audience,
+            territory: form.territory.trim(),
+            needs: form.needs.trim(),
           },
         },
       });
