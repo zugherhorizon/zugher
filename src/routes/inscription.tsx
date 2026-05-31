@@ -5,6 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export const Route = createFileRoute("/inscription")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    audience: typeof search.audience === "string" ? search.audience : undefined,
+    territory: typeof search.territory === "string" ? search.territory : undefined,
+    needs: typeof search.needs === "string" ? search.needs : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Inscription — zugher." },
@@ -69,6 +74,7 @@ const SECTEURS = [
 
 const schema = z
   .object({
+    audience: z.enum(["grand_public", "pro"], { message: "Choisissez un type de compte" }),
     firstName: z.string().trim().max(80).optional().or(z.literal("")),
     lastName: z.string().trim().max(80).optional().or(z.literal("")),
     email: z.string().trim().email("Adresse e-mail invalide").max(255),
@@ -86,13 +92,20 @@ const schema = z
     departement: z.string().trim().max(120).optional().or(z.literal("")),
     ville: z.string().trim().max(120).optional().or(z.literal("")),
     secteur: z.string().trim().max(120).optional().or(z.literal("")),
+    territory: z.string().trim().max(160).optional().or(z.literal("")),
+    needs: z.string().trim().max(2000).optional().or(z.literal("")),
   })
   .refine((d) => d.email.toLowerCase() === d.emailConfirm.toLowerCase(), {
     path: ["emailConfirm"],
     message: "Les deux adresses e-mail ne correspondent pas",
+  })
+  .refine((d) => d.audience !== "pro" || (d.needs && d.needs.trim().length >= 20), {
+    path: ["needs"],
+    message: "Pour un compte professionnel, détaillez vos besoins (20 caractères min.)",
   });
 
 type FormState = {
+  audience: "" | "grand_public" | "pro";
   firstName: string;
   lastName: string;
   email: string;
@@ -104,9 +117,12 @@ type FormState = {
   departement: string;
   ville: string;
   secteur: string;
+  territory: string;
+  needs: string;
 };
 
 const initial: FormState = {
+  audience: "",
   firstName: "",
   lastName: "",
   email: "",
@@ -118,10 +134,21 @@ const initial: FormState = {
   departement: "",
   ville: "",
   secteur: "",
+  territory: "",
+  needs: "",
 };
 
 function InscriptionPage() {
-  const [form, setForm] = useState<FormState>(initial);
+  const search = Route.useSearch();
+  const [form, setForm] = useState<FormState>(() => ({
+    ...initial,
+    audience:
+      search.audience === "grand_public" || search.audience === "pro"
+        ? search.audience
+        : "",
+    territory: search.territory ?? "",
+    needs: search.needs ?? "",
+  }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [sentAt, setSentAt] = useState<number | null>(null);
