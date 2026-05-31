@@ -81,7 +81,7 @@ const schema = z
       .optional()
       .or(z.literal("")),
     profil: z.enum(PROFIL_VALUES, { message: "Sélectionnez un profil" }),
-    pays: z.string().trim().max(80).optional().or(z.literal("")),
+    pays: z.string().trim().min(1, "Sélectionnez un pays").max(80),
     region: z.string().trim().max(120).optional().or(z.literal("")),
     departement: z.string().trim().max(120).optional().or(z.literal("")),
     ville: z.string().trim().max(120).optional().or(z.literal("")),
@@ -258,9 +258,9 @@ function InscriptionPage() {
         Rejoignez <em>zugher</em>.
       </h1>
       <p className="zg-lead">
-        Seuls l'<strong>e-mail</strong> et le <strong>profil</strong> sont
-        obligatoires. Vous recevrez un lien de vérification par e-mail pour
-        activer votre compte.
+        L'<strong>e-mail</strong>, le <strong>profil</strong> et le{" "}
+        <strong>pays</strong> sont obligatoires. Vous recevrez un lien de
+        vérification par e-mail pour activer votre compte.
       </p>
 
       <form onSubmit={onSubmit} className="zg-form" style={{ marginTop: 28 }} noValidate>
@@ -340,8 +340,13 @@ function InscriptionPage() {
               ))}
             </select>
           </Field>
-          <Field label="Pays">
-            <select value={form.pays} onChange={setField("pays")}>
+          <Field label="Pays" required error={errors.pays}>
+            <select
+              required
+              value={form.pays}
+              onChange={setField("pays")}
+              aria-invalid={!!errors.pays}
+            >
               <option value="">— Sélectionnez votre pays —</option>
               {PAYS.map((p) => (
                 <option key={p} value={p}>{p}</option>
