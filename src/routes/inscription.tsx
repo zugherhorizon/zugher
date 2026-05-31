@@ -81,7 +81,7 @@ const schema = z
       .optional()
       .or(z.literal("")),
     profil: z.enum(PROFIL_VALUES, { message: "Sélectionnez un profil" }),
-    pays: z.string().trim().max(80).optional().or(z.literal("")),
+    pays: z.string().trim().min(1, "Sélectionnez un pays").max(80),
     region: z.string().trim().max(120).optional().or(z.literal("")),
     departement: z.string().trim().max(120).optional().or(z.literal("")),
     ville: z.string().trim().max(120).optional().or(z.literal("")),
