@@ -1,5 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
+import {
+  ANNUAL_DISCOUNT,
+  type Cadence,
+  formatPriceLabel,
+  PLANS,
+  type PlanId,
+  yearlySavings,
+} from "@/lib/pricing";
+import { prepareCheckout } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/offres")({
   head: () => ({
@@ -15,113 +25,46 @@ export const Route = createFileRoute("/offres")({
   component: OffresPage,
 });
 
-type Cadence = "monthly" | "yearly";
-
-type Plan = {
-  id: string;
-  audience: string;
-  name: string;
-  tagline: string;
-  monthly: number; // €/mois
-  pitch: string;
-  features: string[];
-  cta: string;
-  highlight?: boolean;
-  badge?: string;
-};
-
-const ANNUAL_DISCOUNT = 0.2; // -20% sur l'annuel
-
-const PLANS: Plan[] = [
-  {
-    id: "demandeur",
-    audience: "Demandeur d'emploi",
-    name: "Tremplin",
-    tagline: "Gratuit, sur justificatif",
-    monthly: 0,
-    pitch:
-      "Accédez aux opportunités du territoire et reconnectez-vous à l'écosystème local.",
-    features: [
-      "Place de marché du territoire choisi",
-      "Alertes emploi & missions courtes",
-      "Mise en relation avec les structures locales",
-      "Newsletter mensuelle territoriale",
-    ],
-    cta: "Activer Tremplin",
-  },
-  {
-    id: "competence",
-    audience: "Compétence",
-    name: "Expertise",
-    tagline: "Pour freelances, mentors, experts",
-    monthly: 12,
-    pitch:
-      "Proposez vos compétences aux porteurs de projets et aux entreprises du territoire.",
-    features: [
-      "Profil compétence référencé",
-      "Alertes missions ciblées (secteur, montant, zone)",
-      "Accès aux briefs de projets en recherche",
-      "Historique complet des opportunités",
-    ],
-    cta: "Choisir Expertise",
-  },
-  {
-    id: "porteur",
-    audience: "Porteur de projet",
-    name: "Élan",
-    tagline: "Le plus choisi",
-    monthly: 19,
-    pitch:
-      "Donnez de la visibilité à votre projet, trouvez vos premiers soutiens et financements.",
-    features: [
-      "Fiche projet enrichie & visibilité prioritaire",
-      "Mise en relation investisseurs & mentors",
-      "Suivi des marques d'intérêt en temps réel",
-      "Accompagnement méthodologique (guides + replays)",
-      "Alertes financements publics / privés",
-    ],
-    cta: "Choisir Élan",
-    highlight: true,
-    badge: "Recommandé",
-  },
-  {
-    id: "investisseur",
-    audience: "Investisseur",
-    name: "Dealflow",
-    tagline: "Pour investir intelligemment",
-    monthly: 39,
-    pitch:
-      "Accédez en avance aux projets, comparez-les, échangez directement avec les porteurs.",
-    features: [
-      "Accès anticipé aux nouvelles opportunités",
-      "Indicateurs de performance territoriaux",
-      "Dossiers détaillés & data room sécurisée",
-      "Échanges directs avec les porteurs",
-      "Export & suivi de portefeuille",
-    ],
-    cta: "Choisir Dealflow",
-  },
-];
-
-function formatPrice(monthly: number, cadence: Cadence) {
-  if (monthly === 0) return { main: "0 €", sub: "à vie" };
-  if (cadence === "monthly") {
-    return { main: `${monthly} €`, sub: "/ mois" };
-  }
-  const discounted = Math.round(monthly * (1 - ANNUAL_DISCOUNT));
-  return { main: `${discounted} €`, sub: "/ mois · facturé annuellement" };
-}
-
 function OffresPage() {
   const [cadence, setCadence] = useState<Cadence>("monthly");
+  const [pendingPlan, setPendingPlan] = useState<PlanId | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const prepare = useServerFn(prepareCheckout);
 
   const subtitle = useMemo(
     () =>
       cadence === "yearly"
-        ? "Tarifs annuels avec -20% appliqué. Engagement 12 mois, sans renouvellement automatique surprise."
+        ? `Tarifs annuels avec -${Math.round(ANNUAL_DISCOUNT * 100)}% appliqué. Engagement 12 mois, sans renouvellement automatique surprise.`
         : "Tarifs mensuels sans engagement. Modifiable ou résiliable à tout moment.",
     [cadence],
   );
+
+  const handleSubscribe = async (planId: PlanId) => {
+    setError(null);
+    setPendingPlan(planId);
+    try {
+      const result = await prepare({ data: { planId, cadence } });
+      if (result.status === "free") {
+        // Plan gratuit : on bascule directement dans l'espace.
+        window.location.assign("/dashboard");
+        return;
+      }
+      // TODO: brancher la redirection vers la session Stripe/Paddle ici
+      // dès que le provider de paiement sera activé. Pour l'instant on
+      // confirme à l'utilisateur le prix verrouillé côté serveur.
+      console.info("Checkout préparé", result);
+      window.location.assign(
+        `/dashboard?checkout=${result.planId}&cadence=${result.cadence}&amount=${result.unitAmountCents}`,
+      );
+    } catch (e) {
+      console.error(e);
+      setError(
+        "Impossible de préparer le paiement pour le moment. Réessayez dans un instant.",
+      );
+    } finally {
+      setPendingPlan(null);
+    }
+  };
 
   return (
     <section className="zg-stub" style={{ maxWidth: 1180 }}>
@@ -155,12 +98,7 @@ function OffresPage() {
           aria-selected={cadence === "monthly"}
           onClick={() => setCadence("monthly")}
           className={cadence === "monthly" ? "zg-btn zg-btn-primary" : "zg-btn zg-btn-ghost"}
-          style={{
-            padding: "8px 18px",
-            borderRadius: 999,
-            border: "none",
-            cursor: "pointer",
-          }}
+          style={{ padding: "8px 18px", borderRadius: 999, border: "none", cursor: "pointer" }}
         >
           Mensuel
         </button>
@@ -192,11 +130,28 @@ function OffresPage() {
               letterSpacing: 0.4,
             }}
           >
-            −20%
+            −{Math.round(ANNUAL_DISCOUNT * 100)}%
           </span>
         </button>
       </div>
       <p style={{ marginTop: 12, fontSize: 13, opacity: 0.7 }}>{subtitle}</p>
+
+      {error ? (
+        <div
+          role="alert"
+          style={{
+            marginTop: 16,
+            padding: "10px 14px",
+            border: "1px solid var(--terra)",
+            borderRadius: 8,
+            color: "var(--terra-deep)",
+            background: "rgba(176,74,46,0.06)",
+            fontSize: 14,
+          }}
+        >
+          {error}
+        </div>
+      ) : null}
 
       <div
         style={{
@@ -208,7 +163,10 @@ function OffresPage() {
         }}
       >
         {PLANS.map((p) => {
-          const price = formatPrice(p.monthly, cadence);
+          const price = formatPriceLabel(p, cadence);
+          const savings = yearlySavings(p);
+          const isPending = pendingPlan === p.id;
+          const isFree = p.monthlyPrice === 0;
           return (
             <article
               key={p.id}
@@ -266,20 +224,15 @@ function OffresPage() {
 
               <div style={{ fontSize: 36, fontWeight: 700, marginTop: 8 }}>
                 {price.main}
-                <span
-                  style={{
-                    fontSize: 13,
-                    opacity: 0.6,
-                    fontWeight: 400,
-                  }}
-                >
+                <span style={{ fontSize: 13, opacity: 0.6, fontWeight: 400 }}>
                   {" "}
                   {price.sub}
                 </span>
               </div>
-              {p.monthly > 0 && cadence === "yearly" ? (
-                <div style={{ fontSize: 12, opacity: 0.55 }}>
-                  Soit {p.monthly * 12 - Math.round(p.monthly * (1 - ANNUAL_DISCOUNT)) * 12} € économisés par an.
+              {!isFree && cadence === "yearly" ? (
+                <div style={{ fontSize: 12, opacity: 0.6 }}>
+                  Soit {p.monthlyPrice * 12} € → {p.monthlyPrice * 12 - savings} € / an
+                  {" "}· <strong>{savings} € économisés</strong>
                 </div>
               ) : null}
 
@@ -292,15 +245,26 @@ function OffresPage() {
               </ul>
 
               <div style={{ marginTop: "auto", paddingTop: 16 }}>
-                <Link
-                  to="/dashboard"
+                <button
+                  type="button"
+                  onClick={() => handleSubscribe(p.id)}
+                  disabled={isPending}
                   className={
                     p.highlight ? "zg-btn zg-btn-primary" : "zg-btn zg-btn-ghost"
                   }
-                  style={{ width: "100%", textAlign: "center" }}
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    cursor: isPending ? "wait" : "pointer",
+                    opacity: isPending ? 0.7 : 1,
+                  }}
                 >
-                  {p.cta}
-                </Link>
+                  {isPending
+                    ? "Préparation…"
+                    : isFree
+                      ? `Activer ${p.name}`
+                      : `Choisir ${p.name}`}
+                </button>
               </div>
             </article>
           );
