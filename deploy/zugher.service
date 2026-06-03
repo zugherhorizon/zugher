@@ -1,0 +1,23 @@
+[Unit]
+Description=Zugher TanStack Start SSR
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/var/www/zugher
+EnvironmentFile=/var/www/zugher/.env.production
+ExecStart=/usr/bin/node .output/server/index.mjs
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/zugher.log
+StandardError=append:/var/log/zugher.log
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
