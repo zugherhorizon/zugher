@@ -41,6 +41,10 @@ function OffresPage() {
   const [error, setError] = useState<string | null>(null);
   const prepare = useServerFn(prepareCheckout);
 
+  const prepare = useServerFn(prepareCheckout);
+  const { openCheckout } = usePaddleCheckout();
+  const { user } = useAuth();
+
   const subtitle = useMemo(
     () =>
       cadence === "yearly"
@@ -55,21 +59,32 @@ function OffresPage() {
     try {
       const result = await prepare({ data: { planId, cadence } });
       if (result.status === "free") {
-        // Plan gratuit : on bascule directement dans l'espace.
         window.location.assign("/dashboard");
         return;
       }
-      // TODO: brancher la redirection vers la session Stripe/Paddle ici
-      // dès que le provider de paiement sera activé. Pour l'instant on
-      // confirme à l'utilisateur le prix verrouillé côté serveur.
-      console.info("Checkout préparé", result);
-      window.location.assign(
-        `/dashboard?checkout=${result.planId}&cadence=${result.cadence}&amount=${result.unitAmountCents}`,
-      );
+
+      if (!user) {
+        window.location.assign(`/inscription?next=/offres`);
+        return;
+      }
+
+      const productKey = PLAN_TO_PADDLE_PRODUCT[planId];
+      if (!productKey) {
+        setError("Cette offre n'est pas encore disponible au paiement.");
+        return;
+      }
+      const priceId = `${productKey}_${cadence === "yearly" ? "yearly" : "monthly"}`;
+
+      await openCheckout({
+        priceId,
+        customerEmail: user.email ?? undefined,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/dashboard?checkout=success`,
+      });
     } catch (e) {
       console.error(e);
       setError(
-        "Impossible de préparer le paiement pour le moment. Réessayez dans un instant.",
+        "Impossible d'ouvrir le paiement pour le moment. Réessayez dans un instant.",
       );
     } finally {
       setPendingPlan(null);
