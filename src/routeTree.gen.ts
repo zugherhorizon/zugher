@@ -20,6 +20,7 @@ import { Route as NewsletterRouteImport } from './routes/newsletter'
 import { Route as InvestisseursRouteImport } from './routes/investisseurs'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as ConfirmEmailRouteImport } from './routes/confirm-email'
 import { Route as CompetencesRouteImport } from './routes/competences'
 import { Route as BusinessPlanRouteImport } from './routes/business-plan'
@@ -88,6 +89,11 @@ const InscriptionRoute = InscriptionRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnexionRoute = ConnexionRouteImport.update({
+  id: '/connexion',
+  path: '/connexion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfirmEmailRoute = ConfirmEmailRouteImport.update({
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/confirm-email': typeof ConfirmEmailRoute
+  '/connexion': typeof ConnexionRoute
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/confirm-email': typeof ConfirmEmailRoute
+  '/connexion': typeof ConnexionRoute
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
@@ -226,6 +234,7 @@ export interface FileRoutesById {
   '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
   '/confirm-email': typeof ConfirmEmailRoute
+  '/connexion': typeof ConnexionRoute
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/business-plan'
     | '/competences'
     | '/confirm-email'
+    | '/connexion'
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/business-plan'
     | '/competences'
     | '/confirm-email'
+    | '/connexion'
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/business-plan'
     | '/competences'
     | '/confirm-email'
+    | '/connexion'
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   BusinessPlanRoute: typeof BusinessPlanRoute
   CompetencesRoute: typeof CompetencesRoute
   ConfirmEmailRoute: typeof ConfirmEmailRoute
+  ConnexionRoute: typeof ConnexionRoute
   DashboardRoute: typeof DashboardRoute
   InscriptionRoute: typeof InscriptionRoute
   InvestisseursRoute: typeof InvestisseursRoute
@@ -436,6 +449,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connexion': {
+      id: '/connexion'
+      path: '/connexion'
+      fullPath: '/connexion'
+      preLoaderRoute: typeof ConnexionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confirm-email': {
@@ -545,6 +565,7 @@ const rootRouteChildren: RootRouteChildren = {
   BusinessPlanRoute: BusinessPlanRoute,
   CompetencesRoute: CompetencesRoute,
   ConfirmEmailRoute: ConfirmEmailRoute,
+  ConnexionRoute: ConnexionRoute,
   DashboardRoute: DashboardRoute,
   InscriptionRoute: InscriptionRoute,
   InvestisseursRoute: InvestisseursRoute,
