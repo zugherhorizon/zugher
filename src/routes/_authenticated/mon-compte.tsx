@@ -32,14 +32,15 @@ const MODULES: Array<{ key: keyof ModuleAccess; label: string; to?: string }> = 
 ];
 
 function MonComptePage() {
-  return (
-    <RequireAuth reason="L'espace « Mon compte » est réservé aux membres connectés.">
-      <Content />
-    </RequireAuth>
-  );
+  return <Content />;
 }
 
 function Content() {
+  const navigate = useNavigate();
+  async function onLogout() {
+    await supabase.auth.signOut();
+    navigate({ to: "/connexion" });
+  }
   const s = useAccountSession();
 
   if (s.loading) {
