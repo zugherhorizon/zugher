@@ -90,6 +90,8 @@ function OffresPage() {
   };
 
   return (
+    <>
+      <PaymentTestModeBanner />
     <section className="zg-stub" style={{ maxWidth: 1180 }}>
       <div className="zg-stub-tag">Grand public · Offres</div>
       <h1 className="zg-h1" style={{ fontSize: "clamp(32px, 4.5vw, 52px)" }}>
