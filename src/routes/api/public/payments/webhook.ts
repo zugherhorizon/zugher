@@ -115,6 +115,8 @@ async function handleWebhook(req: Request, env: PaddleEnv) {
       await handleSubscriptionCreated(event.data, env);
       break;
     case EventName.SubscriptionUpdated:
+    case EventName.SubscriptionPaused:
+    case EventName.SubscriptionResumed:
       await handleSubscriptionUpdated(event.data, env);
       break;
     case EventName.SubscriptionCanceled:
