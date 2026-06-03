@@ -18,9 +18,11 @@ function buildMockClient() {
 
   const makeUpdateChain = (row: any) => {
     const filters: Array<[string, unknown]> = [];
-    const chain = {
+    const chain: any = {
       eq: (column: string, value: unknown) => {
         filters.push([column, value]);
+        // Second `.eq()` must be awaitable — return a thenable that also
+        // exposes `.eq` so the first `.eq` keeps chaining.
         return chain;
       },
       then: (resolve: (v: { error: null }) => void) => {
@@ -31,12 +33,12 @@ function buildMockClient() {
     return chain;
   };
 
-  const client: SubscriptionsWriter = {
+  const client = {
     from: vi.fn(() => ({
       upsert,
       update: (row: any) => makeUpdateChain(row),
     })),
-  };
+  } as unknown as SubscriptionsWriter;
 
   return { client, calls };
 }
