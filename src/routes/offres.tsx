@@ -10,6 +10,16 @@ import {
   yearlySavings,
 } from "@/lib/pricing";
 import { prepareCheckout } from "@/lib/checkout.functions";
+import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
+import { useAuth } from "@/hooks/use-auth";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+
+/** Mapping planId interne → product Paddle (suffixes _monthly / _yearly). */
+const PLAN_TO_PADDLE_PRODUCT: Partial<Record<PlanId, string>> = {
+  competence: "expertise",
+  porteur: "elan",
+  investisseur: "dealflow",
+};
 
 export const Route = createFileRoute("/offres")({
   head: () => ({
