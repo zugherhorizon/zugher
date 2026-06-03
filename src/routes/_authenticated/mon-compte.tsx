@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { RequireAuth } from "@/components/zugher/RequireAuth";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAccountSession, type ModuleAccess } from "@/hooks/use-account-session";
 import { SubscriptionPanel } from "@/components/zugher/SubscriptionPanel";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/mon-compte")({
   head: () => ({
