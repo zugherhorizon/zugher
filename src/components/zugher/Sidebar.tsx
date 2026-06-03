@@ -35,6 +35,7 @@ const groups: NavGroup[] = [
     title: "Nous rejoindre",
     items: [
       { to: "/inscription", label: "Créer un compte" },
+      { to: "/inscription", label: "Connecter à mon compte" },
       { to: "/newsletter", label: "Newsletter" },
     ],
   },
