@@ -78,7 +78,7 @@ export function Sidebar() {
               const active = it.to === "/" ? pathname === "/" : pathname.startsWith(it.to);
               return (
                 <Link
-                  key={it.to}
+                  key={`${it.to}-${it.label}`}
                   to={it.to}
                   onClick={() => setOpen(false)}
                   className={`zg-nav-item${active ? " active" : ""}`}
