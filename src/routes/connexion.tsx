@@ -68,7 +68,7 @@ function ConnexionPage() {
     }
 
     if (data.session) {
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/mon-compte" });
     }
   }
 
