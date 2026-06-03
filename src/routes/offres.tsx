@@ -10,6 +10,16 @@ import {
   yearlySavings,
 } from "@/lib/pricing";
 import { prepareCheckout } from "@/lib/checkout.functions";
+import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
+import { useAuth } from "@/hooks/use-auth";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+
+/** Mapping planId interne → product Paddle (suffixes _monthly / _yearly). */
+const PLAN_TO_PADDLE_PRODUCT: Partial<Record<PlanId, string>> = {
+  competence: "expertise",
+  porteur: "elan",
+  investisseur: "dealflow",
+};
 
 export const Route = createFileRoute("/offres")({
   head: () => ({
@@ -30,6 +40,8 @@ function OffresPage() {
   const [pendingPlan, setPendingPlan] = useState<PlanId | null>(null);
   const [error, setError] = useState<string | null>(null);
   const prepare = useServerFn(prepareCheckout);
+  const { openCheckout } = usePaddleCheckout();
+  const { user } = useAuth();
 
   const subtitle = useMemo(
     () =>
@@ -45,21 +57,32 @@ function OffresPage() {
     try {
       const result = await prepare({ data: { planId, cadence } });
       if (result.status === "free") {
-        // Plan gratuit : on bascule directement dans l'espace.
         window.location.assign("/dashboard");
         return;
       }
-      // TODO: brancher la redirection vers la session Stripe/Paddle ici
-      // dès que le provider de paiement sera activé. Pour l'instant on
-      // confirme à l'utilisateur le prix verrouillé côté serveur.
-      console.info("Checkout préparé", result);
-      window.location.assign(
-        `/dashboard?checkout=${result.planId}&cadence=${result.cadence}&amount=${result.unitAmountCents}`,
-      );
+
+      if (!user) {
+        window.location.assign(`/inscription?next=/offres`);
+        return;
+      }
+
+      const productKey = PLAN_TO_PADDLE_PRODUCT[planId];
+      if (!productKey) {
+        setError("Cette offre n'est pas encore disponible au paiement.");
+        return;
+      }
+      const priceId = `${productKey}_${cadence === "yearly" ? "yearly" : "monthly"}`;
+
+      await openCheckout({
+        priceId,
+        customerEmail: user.email ?? undefined,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/dashboard?checkout=success`,
+      });
     } catch (e) {
       console.error(e);
       setError(
-        "Impossible de préparer le paiement pour le moment. Réessayez dans un instant.",
+        "Impossible d'ouvrir le paiement pour le moment. Réessayez dans un instant.",
       );
     } finally {
       setPendingPlan(null);
@@ -67,6 +90,8 @@ function OffresPage() {
   };
 
   return (
+    <>
+      <PaymentTestModeBanner />
     <section className="zg-stub" style={{ maxWidth: 1180 }}>
       <div className="zg-stub-tag">Grand public · Offres</div>
       <h1 className="zg-h1" style={{ fontSize: "clamp(32px, 4.5vw, 52px)" }}>
@@ -291,5 +316,6 @@ function OffresPage() {
         </Link>
       </div>
     </section>
+    </>
   );
 }
