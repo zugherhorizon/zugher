@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useAccountSession, type ModuleAccess } from "@/hooks/use-account-session";
 import { SubscriptionPanel } from "@/components/zugher/SubscriptionPanel";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,11 +38,24 @@ function MonComptePage() {
 
 function Content() {
   const navigate = useNavigate();
-  async function onLogout() {
-    await supabase.auth.signOut();
-    navigate({ to: "/connexion" });
-  }
   const s = useAccountSession();
+
+  // Protection anti-rechargement : avertit l'utilisateur avant qu'il ne quitte
+  // ou recharge la page (équivalent du window.onbeforeunload PHP/JS).
+  useEffect(() => {
+    function handler(e: BeforeUnloadEvent) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
+  async function onLogout() {
+    if (!window.confirm("Confirmer la déconnexion ?")) return;
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  }
 
   if (s.loading) {
     return (
