@@ -101,6 +101,59 @@ export function Sidebar() {
           </div>
         ))}
 
+        <div
+          style={{
+            margin: "16px 12px 0",
+            padding: "10px 12px",
+            borderRadius: 10,
+            border: "1px solid rgba(0,0,0,0.12)",
+            fontSize: 12,
+            display: "grid",
+            gap: 6,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span
+              aria-hidden
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: loading
+                  ? "rgb(156,163,175)"
+                  : user
+                    ? "rgb(34,197,94)"
+                    : "rgb(239,68,68)",
+              }}
+            />
+            <span style={{ fontWeight: 600 }}>
+              {loading ? "Vérification…" : user ? "Connecté" : "Déconnecté"}
+            </span>
+          </div>
+          {user && (
+            <>
+              <div style={{ opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis" }}>
+                {user.email}
+              </div>
+              <button
+                type="button"
+                onClick={onLogout}
+                style={{
+                  marginTop: 4,
+                  padding: "6px 10px",
+                  borderRadius: 8,
+                  border: "1px solid rgba(0,0,0,0.15)",
+                  background: "transparent",
+                  fontSize: 12,
+                  cursor: "pointer",
+                }}
+              >
+                Se déconnecter
+              </button>
+            </>
+          )}
+        </div>
+
         <div className="zg-sidebar-footer">
           Instance {tenant.shortName} · v2.0
           <br />
