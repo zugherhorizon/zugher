@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { RequireAuth } from "@/components/zugher/RequireAuth";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAccountSession, type ModuleAccess } from "@/hooks/use-account-session";
 import { SubscriptionPanel } from "@/components/zugher/SubscriptionPanel";
+import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/mon-compte")({
+export const Route = createFileRoute("/_authenticated/mon-compte")({
   head: () => ({
     meta: [
       { title: "Mon compte — zugher." },
@@ -32,14 +32,15 @@ const MODULES: Array<{ key: keyof ModuleAccess; label: string; to?: string }> = 
 ];
 
 function MonComptePage() {
-  return (
-    <RequireAuth reason="L'espace « Mon compte » est réservé aux membres connectés.">
-      <Content />
-    </RequireAuth>
-  );
+  return <Content />;
 }
 
 function Content() {
+  const navigate = useNavigate();
+  async function onLogout() {
+    await supabase.auth.signOut();
+    navigate({ to: "/connexion" });
+  }
   const s = useAccountSession();
 
   if (s.loading) {
@@ -61,6 +62,12 @@ function Content() {
         {s.statut ? ` · ${s.statut}` : ""}
         {s.abon ? ` · Abonnement ${s.abon}` : ""}
       </p>
+
+      <div className="zg-actions" style={{ marginTop: 16 }}>
+        <button type="button" onClick={onLogout} className="zg-btn zg-btn-ghost">
+          Se déconnecter
+        </button>
+      </div>
 
       <div
         style={{
