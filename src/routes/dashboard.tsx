@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { StubPage } from "@/components/zugher/StubPage";
 import { RequireAuth } from "@/components/zugher/RequireAuth";
 import { SubscriptionPanel } from "@/components/zugher/SubscriptionPanel";
+import { SubscriptionSimulator } from "@/components/zugher/SubscriptionSimulator";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Tableau de bord — zugher." }] }),
@@ -22,6 +23,7 @@ function DashboardPage() {
       >
         <div style={{ marginTop: 32 }}>
           <SubscriptionPanel />
+          <SubscriptionSimulator />
         </div>
       </StubPage>
     </RequireAuth>
