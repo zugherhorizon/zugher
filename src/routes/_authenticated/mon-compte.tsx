@@ -3,7 +3,7 @@ import { RequireAuth } from "@/components/zugher/RequireAuth";
 import { useAccountSession, type ModuleAccess } from "@/hooks/use-account-session";
 import { SubscriptionPanel } from "@/components/zugher/SubscriptionPanel";
 
-export const Route = createFileRoute("/mon-compte")({
+export const Route = createFileRoute("/_authenticated/mon-compte")({
   head: () => ({
     meta: [
       { title: "Mon compte — zugher." },
