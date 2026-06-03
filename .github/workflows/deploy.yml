@@ -1,0 +1,37 @@
+name: Deploy to OVH VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 51.68.227.85
+          username: ubuntu
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: 22
+          script_stop: true
+          script: |
+            cd /var/www/zugher
+            ./deploy/deploy.sh
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" https://zugher.fr)
+            echo "HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 3
+          done
+          echo "Smoke test failed"
+          exit 1
