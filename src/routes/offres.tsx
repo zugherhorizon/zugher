@@ -316,5 +316,6 @@ function OffresPage() {
         </Link>
       </div>
     </section>
+    </>
   );
 }
