@@ -1,6 +1,8 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { getCurrentTenant } from "@/lib/tenant";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 type NavItem = { to: string; label: string };
 type NavGroup = { title: string; items: NavItem[] };
@@ -47,6 +49,14 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const tenant = getCurrentTenant();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  async function onLogout() {
+    if (!window.confirm("Confirmer la déconnexion ?")) return;
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  }
 
   return (
     <>
