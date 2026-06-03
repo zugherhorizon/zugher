@@ -63,6 +63,12 @@ function Content() {
         {s.abon ? ` · Abonnement ${s.abon}` : ""}
       </p>
 
+      <div className="zg-actions" style={{ marginTop: 16 }}>
+        <button type="button" onClick={onLogout} className="zg-btn zg-btn-ghost">
+          Se déconnecter
+        </button>
+      </div>
+
       <div
         style={{
           marginTop: 28,
