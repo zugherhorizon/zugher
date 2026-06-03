@@ -17,7 +17,6 @@ import { Route as ParcoursRouteImport } from './routes/parcours'
 import { Route as OpportunitesRouteImport } from './routes/opportunites'
 import { Route as OffresRouteImport } from './routes/offres'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
-import { Route as MonCompteRouteImport } from './routes/mon-compte'
 import { Route as InvestisseursRouteImport } from './routes/investisseurs'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -26,11 +25,13 @@ import { Route as ConfirmEmailRouteImport } from './routes/confirm-email'
 import { Route as CompetencesRouteImport } from './routes/competences'
 import { Route as BusinessPlanRouteImport } from './routes/business-plan'
 import { Route as ApplicationsRouteImport } from './routes/applications'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
 import { Route as AdminLeadsRouteImport } from './routes/admin.leads'
+import { Route as AuthenticatedMonCompteRouteImport } from './routes/_authenticated/mon-compte'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -77,11 +78,6 @@ const NewsletterRoute = NewsletterRouteImport.update({
   path: '/newsletter',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MonCompteRoute = MonCompteRouteImport.update({
-  id: '/mon-compte',
-  path: '/mon-compte',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const InvestisseursRoute = InvestisseursRouteImport.update({
   id: '/investisseurs',
   path: '/investisseurs',
@@ -122,6 +118,10 @@ const ApplicationsRoute = ApplicationsRouteImport.update({
   path: '/applications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -146,6 +146,11 @@ const AdminLeadsRoute = AdminLeadsRouteImport.update({
   id: '/admin/leads',
   path: '/admin/leads',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMonCompteRoute = AuthenticatedMonCompteRouteImport.update({
+  id: '/mon-compte',
+  path: '/mon-compte',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
@@ -187,7 +192,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
-  '/mon-compte': typeof MonCompteRoute
   '/newsletter': typeof NewsletterRoute
   '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
@@ -196,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/mon-compte': typeof AuthenticatedMonCompteRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
@@ -216,7 +221,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
-  '/mon-compte': typeof MonCompteRoute
   '/newsletter': typeof NewsletterRoute
   '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
@@ -225,6 +229,7 @@ export interface FileRoutesByTo {
   '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/mon-compte': typeof AuthenticatedMonCompteRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
@@ -238,6 +243,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/applications': typeof ApplicationsRoute
   '/business-plan': typeof BusinessPlanRoute
   '/competences': typeof CompetencesRoute
@@ -246,7 +252,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
-  '/mon-compte': typeof MonCompteRoute
   '/newsletter': typeof NewsletterRoute
   '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
@@ -255,6 +260,7 @@ export interface FileRoutesById {
   '/rdv': typeof RdvRoute
   '/territoire': typeof TerritoireRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/_authenticated/mon-compte': typeof AuthenticatedMonCompteRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/api/chat': typeof ApiChatRoute
@@ -277,7 +283,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
-    | '/mon-compte'
     | '/newsletter'
     | '/offres'
     | '/opportunites'
@@ -286,6 +291,7 @@ export interface FileRouteTypes {
     | '/rdv'
     | '/territoire'
     | '/unsubscribe'
+    | '/mon-compte'
     | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
@@ -306,7 +312,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
-    | '/mon-compte'
     | '/newsletter'
     | '/offres'
     | '/opportunites'
@@ -315,6 +320,7 @@ export interface FileRouteTypes {
     | '/rdv'
     | '/territoire'
     | '/unsubscribe'
+    | '/mon-compte'
     | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
@@ -327,6 +333,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/applications'
     | '/business-plan'
     | '/competences'
@@ -335,7 +342,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
-    | '/mon-compte'
     | '/newsletter'
     | '/offres'
     | '/opportunites'
@@ -344,6 +350,7 @@ export interface FileRouteTypes {
     | '/rdv'
     | '/territoire'
     | '/unsubscribe'
+    | '/_authenticated/mon-compte'
     | '/admin/leads'
     | '/admin/parametres'
     | '/api/chat'
@@ -357,6 +364,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApplicationsRoute: typeof ApplicationsRoute
   BusinessPlanRoute: typeof BusinessPlanRoute
   CompetencesRoute: typeof CompetencesRoute
@@ -365,7 +373,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   InscriptionRoute: typeof InscriptionRoute
   InvestisseursRoute: typeof InvestisseursRoute
-  MonCompteRoute: typeof MonCompteRoute
   NewsletterRoute: typeof NewsletterRoute
   OffresRoute: typeof OffresRoute
   OpportunitesRoute: typeof OpportunitesRoute
@@ -443,13 +450,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsletterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mon-compte': {
-      id: '/mon-compte'
-      path: '/mon-compte'
-      fullPath: '/mon-compte'
-      preLoaderRoute: typeof MonCompteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/investisseurs': {
       id: '/investisseurs'
       path: '/investisseurs'
@@ -506,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApplicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -540,6 +547,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/leads'
       preLoaderRoute: typeof AdminLeadsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/mon-compte': {
+      id: '/_authenticated/mon-compte'
+      path: '/mon-compte'
+      fullPath: '/mon-compte'
+      preLoaderRoute: typeof AuthenticatedMonCompteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
@@ -579,8 +593,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMonCompteRoute: typeof AuthenticatedMonCompteRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMonCompteRoute: AuthenticatedMonCompteRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApplicationsRoute: ApplicationsRoute,
   BusinessPlanRoute: BusinessPlanRoute,
   CompetencesRoute: CompetencesRoute,
@@ -589,7 +615,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   InscriptionRoute: InscriptionRoute,
   InvestisseursRoute: InvestisseursRoute,
-  MonCompteRoute: MonCompteRoute,
   NewsletterRoute: NewsletterRoute,
   OffresRoute: OffresRoute,
   OpportunitesRoute: OpportunitesRoute,
@@ -611,3 +636,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
