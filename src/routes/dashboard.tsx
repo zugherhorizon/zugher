@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { StubPage } from "@/components/zugher/StubPage";
 import { RequireAuth } from "@/components/zugher/RequireAuth";
-import { CustomerPortalButton } from "@/components/zugher/CustomerPortalButton";
+import { SubscriptionPanel } from "@/components/zugher/SubscriptionPanel";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Tableau de bord — zugher." }] }),
@@ -20,8 +20,8 @@ function DashboardPage() {
         }
         lead="KPI, secteurs porteurs, alertes IA, journal d'activité. Vue agrégée des tables tjournal, tao, tprev en Phase 2."
       >
-        <div style={{ marginTop: 24 }}>
-          <CustomerPortalButton />
+        <div style={{ marginTop: 32 }}>
+          <SubscriptionPanel />
         </div>
       </StubPage>
     </RequireAuth>
