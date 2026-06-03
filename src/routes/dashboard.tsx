@@ -23,6 +23,7 @@ function DashboardPage() {
       >
         <div style={{ marginTop: 32 }}>
           <SubscriptionPanel />
+          <SubscriptionSimulator />
         </div>
       </StubPage>
     </RequireAuth>
