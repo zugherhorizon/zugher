@@ -40,8 +40,6 @@ function OffresPage() {
   const [pendingPlan, setPendingPlan] = useState<PlanId | null>(null);
   const [error, setError] = useState<string | null>(null);
   const prepare = useServerFn(prepareCheckout);
-
-  const prepare = useServerFn(prepareCheckout);
   const { openCheckout } = usePaddleCheckout();
   const { user } = useAuth();
 
