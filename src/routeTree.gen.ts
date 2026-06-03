@@ -17,6 +17,7 @@ import { Route as ParcoursRouteImport } from './routes/parcours'
 import { Route as OpportunitesRouteImport } from './routes/opportunites'
 import { Route as OffresRouteImport } from './routes/offres'
 import { Route as NewsletterRouteImport } from './routes/newsletter'
+import { Route as MonCompteRouteImport } from './routes/mon-compte'
 import { Route as InvestisseursRouteImport } from './routes/investisseurs'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -74,6 +75,11 @@ const OffresRoute = OffresRouteImport.update({
 const NewsletterRoute = NewsletterRouteImport.update({
   id: '/newsletter',
   path: '/newsletter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonCompteRoute = MonCompteRouteImport.update({
+  id: '/mon-compte',
+  path: '/mon-compte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvestisseursRoute = InvestisseursRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
+  '/mon-compte': typeof MonCompteRoute
   '/newsletter': typeof NewsletterRoute
   '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
+  '/mon-compte': typeof MonCompteRoute
   '/newsletter': typeof NewsletterRoute
   '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
@@ -238,6 +246,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/inscription': typeof InscriptionRoute
   '/investisseurs': typeof InvestisseursRoute
+  '/mon-compte': typeof MonCompteRoute
   '/newsletter': typeof NewsletterRoute
   '/offres': typeof OffresRoute
   '/opportunites': typeof OpportunitesRoute
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
+    | '/mon-compte'
     | '/newsletter'
     | '/offres'
     | '/opportunites'
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
+    | '/mon-compte'
     | '/newsletter'
     | '/offres'
     | '/opportunites'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inscription'
     | '/investisseurs'
+    | '/mon-compte'
     | '/newsletter'
     | '/offres'
     | '/opportunites'
@@ -353,6 +365,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   InscriptionRoute: typeof InscriptionRoute
   InvestisseursRoute: typeof InvestisseursRoute
+  MonCompteRoute: typeof MonCompteRoute
   NewsletterRoute: typeof NewsletterRoute
   OffresRoute: typeof OffresRoute
   OpportunitesRoute: typeof OpportunitesRoute
@@ -428,6 +441,13 @@ declare module '@tanstack/react-router' {
       path: '/newsletter'
       fullPath: '/newsletter'
       preLoaderRoute: typeof NewsletterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mon-compte': {
+      id: '/mon-compte'
+      path: '/mon-compte'
+      fullPath: '/mon-compte'
+      preLoaderRoute: typeof MonCompteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/investisseurs': {
@@ -569,6 +589,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   InscriptionRoute: InscriptionRoute,
   InvestisseursRoute: InvestisseursRoute,
+  MonCompteRoute: MonCompteRoute,
   NewsletterRoute: NewsletterRoute,
   OffresRoute: OffresRoute,
   OpportunitesRoute: OpportunitesRoute,
