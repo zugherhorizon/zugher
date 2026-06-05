@@ -29,88 +29,89 @@ Les deux doivent renvoyer `51.68.227.85` avant l'étape SSL.
 
 **Espace Client OVH → Bare Metal Cloud → VPS → `vps-bbe645b3` → onglet « Sauvegardes »**
 
-Active **Sauvegarde automatisée** (~2 €/mois HT) :
-- snapshot quotidien
-- rétention 7 jours
-- restauration en 1 clic depuis l'interface
-
-Optionnel complément : **Snapshot manuel** (~1,20 €/mois) à prendre **juste avant** chaque grosse migration de schéma (ALTER TABLE risqués).
+Active **Sauvegarde automatisée** (~2 €/mois HT) — snapshot quotidien, rétention 7 jours, restauration 1 clic. Optionnel : **Snapshot manuel** (~1,20 €/mois) avant chaque migration de schéma risquée.
 
 ---
 
 ## 3. SSL — Let's Encrypt (sur le VPS, après propagation DNS)
 
-Connecte-toi puis :
 ```bash
 ssh ubuntu@51.68.227.85
 sudo certbot --nginx -d zugher.fr -d www.zugher.fr \
   --non-interactive --agree-tos -m contact@zugher.fr --redirect
-sudo systemctl status certbot.timer    # renouvellement auto déjà actif
-```
-Test du renouvellement :
-```bash
 sudo certbot renew --dry-run
 ```
 
 ---
 
-## 4. Déploiement automatique (GitHub Actions)
+## 4. Déploiement automatique (GitHub Actions = webhook GitHub natif)
 
-Le workflow `.github/workflows/deploy.yml` est créé. Il déclenche `./deploy/deploy.sh` à chaque push sur `main`.
+> ℹ️ **Pas besoin d'installer de webhook receiver sur le VPS.** GitHub Actions est déjà déclenché par le webhook interne de GitHub à chaque `push` sur `main`. Le workflow `.github/workflows/deploy.yml` se connecte en SSH au VPS et lance `./deploy/deploy.sh`.
 
-### Setup unique — clé SSH dédiée au CI
+### 4.a — Clé SSH dédiée au CI (une seule fois, sur ta machine locale)
 
-**Sur ta machine locale** (pas sur le VPS) :
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/zugher_deploy -C "github-actions" -N ""
+ssh-keygen -t ed25519 -f ~/.ssh/zugher_deploy -C "github-actions@zugher" -N ""
 ssh-copy-id -i ~/.ssh/zugher_deploy.pub ubuntu@51.68.227.85
-cat ~/.ssh/zugher_deploy        # → copier le contenu (clé PRIVÉE)
+ssh -i ~/.ssh/zugher_deploy ubuntu@51.68.227.85 "echo OK"   # doit afficher OK sans mot de passe
+cat ~/.ssh/zugher_deploy                                    # ← copier la clé PRIVÉE complète
 ```
 
-**Sur GitHub** : repo → Settings → Secrets and variables → Actions → **New repository secret** :
+### 4.b — Secret GitHub (une seule fois)
+
+Repo `mamrabt/zugher` → **Settings → Secrets and variables → Actions → New repository secret** :
 - Nom : `VPS_SSH_PRIVATE_KEY`
 - Valeur : contenu complet de `~/.ssh/zugher_deploy` (lignes `-----BEGIN…END-----` incluses)
 
-**Sur le VPS** — donner à `ubuntu` le droit de redémarrer le service sans mot de passe (utilisé par `deploy.sh`) :
+### 4.c — Sudoers sur le VPS (deploy.sh redémarre systemd sans mot de passe)
+
 ```bash
+ssh ubuntu@51.68.227.85
 echo 'ubuntu ALL=(ALL) NOPASSWD: /bin/systemctl restart zugher, /bin/systemctl status zugher' \
   | sudo tee /etc/sudoers.d/zugher-deploy
 sudo chmod 440 /etc/sudoers.d/zugher-deploy
+sudo visudo -c    # → doit dire "parsed OK"
 ```
 
-### Vérif
+### 4.d — Vérifier que le webhook GitHub est bien actif
 
-Push un commit vide :
+Repo `mamrabt/zugher` → **Settings → Webhooks** : tu dois voir un webhook géré par GitHub Actions (créé automatiquement quand un workflow existe — rien à configurer).
+
+### 4.e — Test de bout en bout
+
 ```bash
-git commit --allow-empty -m "ci: test deploy" && git push
+git commit --allow-empty -m "ci: test auto-deploy"
+git push origin main
 ```
-Onglet **Actions** sur GitHub → job `Deploy to OVH VPS` doit passer vert, puis `https://zugher.fr` répondre 200.
+
+→ Onglet **Actions** sur GitHub : le job `Deploy to OVH VPS` doit passer vert (job `deploy` puis `Smoke test` qui hit `https://zugher.fr` jusqu'à recevoir 200).
+
+### 4.f — Déclenchement manuel
+
+Repo → **Actions → Deploy to OVH VPS → Run workflow** (le workflow expose `workflow_dispatch`).
 
 ---
 
-## 5. Hardening complémentaire (recommandé une fois en prod)
+## 5. Hardening complémentaire (après mise en prod)
 
 ```bash
-# Désactiver login root + password (clé SSH uniquement)
 sudo sed -i 's/^#*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 sudo systemctl restart ssh
 
-# Mises à jour de sécurité auto
 sudo apt install -y unattended-upgrades
 sudo dpkg-reconfigure -plow unattended-upgrades
 
-# fail2ban (SSH) actif par défaut, vérifier :
 sudo systemctl status fail2ban
 ```
 
 ---
 
-## Ordre recommandé d'exécution
+## Ordre recommandé
 
-1. DNS (section 1) — attendre propagation
-2. Backups OVH (section 2) — 2 clics dans le panel
-3. Install initiale du VPS (cf. `deploy/README.md` étapes 1→7)
-4. SSL (section 3)
-5. Secret GitHub + sudoers + push test (section 4)
-6. Hardening (section 5)
+1. DNS (§1) — attendre propagation
+2. Backups OVH (§2)
+3. Install VPS (cf. `deploy/README.md` étapes 1→7)
+4. SSL (§3)
+5. Auto-deploy (§4 : clé SSH → secret GitHub → sudoers → push test)
+6. Hardening (§5)
