@@ -4,7 +4,7 @@
 //
 // To build for a Node VPS (OVH), set NITRO_PRESET=node-server before the Vite build:
 //   NITRO_PRESET=node-server node ./node_modules/vite/bin/vite.js build
-// → output: .output/server/index.mjs (Node entrypoint)
+// → output: .output/server/index.mjs (Node entrypoint used by systemd)
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 const preset = process.env.NITRO_PRESET;
@@ -13,5 +13,16 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
-  ...(preset ? { nitro: { preset } } : {}),
+  ...(preset
+    ? {
+        nitro: {
+          preset,
+          output: {
+            dir: ".output",
+            serverDir: ".output/server",
+            publicDir: ".output/public",
+          },
+        },
+      }
+    : {}),
 });

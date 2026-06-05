@@ -91,7 +91,7 @@ https://zugher.com/api/public/payments/webhook?env=live
 ```bash
 ssh ubuntu@<IP>
 cd /var/www/zugher
-./deploy/deploy.sh
+bash ./deploy/deploy.sh
 ```
 
 ## Logs & debug

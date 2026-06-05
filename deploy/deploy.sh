@@ -44,7 +44,7 @@ log "▶ bun install --frozen-lockfile"
 "$BUN" install --frozen-lockfile
 
 log "▶ build (Node + NITRO_PRESET=node-server)"
-rm -rf .output .nitro node_modules/.vite
+rm -rf .output .nitro dist node_modules/.vite
 export NODE_ENV=production
 export NITRO_PRESET=node-server
 export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE:-1536}"
@@ -55,7 +55,17 @@ if ! "$NODE_BIN" ./node_modules/vite/bin/vite.js build; then
   fail "build échoué. Si la sortie indique SIGABRT, ajoute 2G de swap sur le VPS puis relance ./deploy/deploy.sh"
 fi
 
-[ -f ".output/server/index.mjs" ] || fail "build a échoué : .output/server/index.mjs absent"
+if [ ! -f ".output/server/index.mjs" ]; then
+  log "❌ build terminé mais entrypoint Node absent — fichiers générés:"
+  for dir in .output dist; do
+    if [ -d "$dir" ]; then
+      find "$dir" -maxdepth 3 -type f | sed 's/^/   /' | head -n 80 || true
+    else
+      log "   $dir absent"
+    fi
+  done
+  fail "build échoué : .output/server/index.mjs absent. Vérifie que vite.config.ts force nitro.output vers .output."
+fi
 
 log "▶ restart systemd ($SERVICE)"
 sudo /bin/systemctl restart "$SERVICE"
