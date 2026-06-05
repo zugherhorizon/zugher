@@ -68,7 +68,7 @@ sudo certbot --nginx -d zugher.com -d www.zugher.com
 ```bash
 cd /var/www/zugher
 bun install
-NITRO_PRESET=node-server bun run build
+NITRO_PRESET=node-server NODE_OPTIONS="--max-old-space-size=1536" node ./node_modules/vite/bin/vite.js build
 sudo systemctl start zugher
 sudo systemctl status zugher
 ```
