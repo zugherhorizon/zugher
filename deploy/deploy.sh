@@ -32,6 +32,7 @@ cd "$APP_DIR" || fail "APP_DIR introuvable: $APP_DIR"
 [ -f ".env.production" ] || fail ".env.production manquant (chmod 600)"
 
 log "▶ git fetch & pull (ff-only)"
+git config advice.diverging false
 git fetch --prune origin
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 [ "$CURRENT_BRANCH" = "main" ] || fail "branche courante=$CURRENT_BRANCH (attendu: main)"
