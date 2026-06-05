@@ -46,7 +46,7 @@ sudo certbot renew --dry-run
 
 ## 4. Déploiement automatique (GitHub Actions = webhook GitHub natif)
 
-> ℹ️ **Pas besoin d'installer de webhook receiver sur le VPS.** GitHub Actions est déjà déclenché par le webhook interne de GitHub à chaque `push` sur `main`. Le workflow `.github/workflows/deploy.yml` se connecte en SSH au VPS et lance `./deploy/deploy.sh`.
+> ℹ️ **Pas besoin d'installer de webhook receiver sur le VPS.** GitHub Actions est déjà déclenché par le webhook interne de GitHub à chaque `push` sur `main`. Le workflow `.github/workflows/deploy.yml` se connecte en SSH au VPS et lance `bash ./deploy/deploy.sh`.
 
 ### 4.a — Clé SSH dédiée au CI (une seule fois, sur ta machine locale)
 
