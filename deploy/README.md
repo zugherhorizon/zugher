@@ -28,7 +28,7 @@ source ~/.bashrc
 ```bash
 sudo mkdir -p /var/www/zugher
 sudo chown -R $USER:$USER /var/www/zugher
-git clone https://github.com/mamrabt/zugher.git /var/www/zugher
+git clone https://github.com/zugherhorizon/zugher.git /var/www/zugher
 cd /var/www/zugher
 ```
 
