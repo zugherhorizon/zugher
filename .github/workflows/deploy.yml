@@ -28,7 +28,7 @@ jobs:
       - name: Smoke test
         run: |
           for i in $(seq 1 20); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" https://zugher.fr)
+            code=$(curl -s -o /dev/null -w "%{http_code}" https://zugher.com)
             echo "HTTP $code"
             [ "$code" = "200" ] && exit 0
             sleep 3

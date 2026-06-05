@@ -4,7 +4,7 @@ VPS : `51.68.227.85` (IPv6 `2001:41d0:305:2100::6171`) — utilisateur `ubuntu`.
 
 ---
 
-## 1. DNS — zone `zugher.fr` (Espace Client OVH → Web Cloud → Noms de domaine → zugher.fr → Zone DNS)
+## 1. DNS — zone `zugher.com` (Espace Client OVH → Web Cloud → Noms de domaine → zugher.com → Zone DNS)
 
 Supprime les anciens enregistrements A/AAAA pour `@` et `www`, puis ajoute :
 
@@ -18,8 +18,8 @@ Supprime les anciens enregistrements A/AAAA pour `@` et `www`, puis ajoute :
 
 Vérifie la propagation (5–30 min) :
 ```bash
-dig +short zugher.fr A
-dig +short www.zugher.fr A
+dig +short zugher.com A
+dig +short www.zugher.com A
 ```
 Les deux doivent renvoyer `51.68.227.85` avant l'étape SSL.
 
@@ -37,8 +37,8 @@ Active **Sauvegarde automatisée** (~2 €/mois HT) — snapshot quotidien, rét
 
 ```bash
 ssh ubuntu@51.68.227.85
-sudo certbot --nginx -d zugher.fr -d www.zugher.fr \
-  --non-interactive --agree-tos -m contact@zugher.fr --redirect
+sudo certbot --nginx -d zugher.com -d www.zugher.com \
+  --non-interactive --agree-tos -m contact@zugher.com --redirect
 sudo certbot renew --dry-run
 ```
 
@@ -84,7 +84,7 @@ git commit --allow-empty -m "ci: test auto-deploy"
 git push origin main
 ```
 
-→ Onglet **Actions** sur GitHub : le job `Deploy to OVH VPS` doit passer vert (job `deploy` puis `Smoke test` qui hit `https://zugher.fr` jusqu'à recevoir 200).
+→ Onglet **Actions** sur GitHub : le job `Deploy to OVH VPS` doit passer vert (job `deploy` puis `Smoke test` qui hit `https://zugher.com` jusqu'à recevoir 200).
 
 ### 4.f — Déclenchement manuel
 
