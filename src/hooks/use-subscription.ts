@@ -49,24 +49,23 @@ export function useSubscription() {
     load();
 
     if (!user) return;
-    const channel = supabase
-      .channel(`subscriptions:${user.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "subscriptions",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => load(),
-      )
-      .subscribe();
+    // Refetch subscription on window focus / visibility change.
+    // Realtime subscription was removed: the subscriptions table is no longer
+    // broadcast over Supabase Realtime because realtime.messages has no per-row
+    // authorization, which would leak other users' billing data.
+    const onFocus = () => load();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [user, env]);
+
 
   const isActive =
     !!subscription &&
