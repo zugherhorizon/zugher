@@ -18,6 +18,7 @@ SERVICE="zugher"
 BUN="$HOME/.bun/bin/bun"
 HEALTH_URL="http://127.0.0.1:3000"
 LOG_PREFIX="[deploy $(date -u +%Y-%m-%dT%H:%M:%SZ)]"
+NODE_BIN="$(command -v node || true)"
 
 log()  { echo "$LOG_PREFIX $*"; }
 fail() { echo "$LOG_PREFIX ❌ $*" >&2; exit 1; }
@@ -27,6 +28,7 @@ trap 'fail "échec ligne $LINENO (exit $?)"' ERR
 cd "$APP_DIR" || fail "APP_DIR introuvable: $APP_DIR"
 
 [ -x "$BUN" ] || fail "bun introuvable à $BUN — installer Bun (cf. README)"
+[ -x "$NODE_BIN" ] || fail "node introuvable — installer Node 20 (cf. README)"
 [ -f ".env.production" ] || fail ".env.production manquant (chmod 600)"
 
 log "▶ git fetch & pull (ff-only)"
@@ -40,8 +42,17 @@ log "   commit déployé: $COMMIT"
 log "▶ bun install --frozen-lockfile"
 "$BUN" install --frozen-lockfile
 
-log "▶ build (NITRO_PRESET=node-server)"
-NITRO_PRESET=node-server "$BUN" run build
+log "▶ build (Node + NITRO_PRESET=node-server)"
+rm -rf .output .nitro node_modules/.vite
+export NODE_ENV=production
+export NITRO_PRESET=node-server
+export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE:-1536}"
+if ! "$NODE_BIN" ./node_modules/vite/bin/vite.js build; then
+  log "❌ build interrompu — diagnostic mémoire VPS"
+  free -h || true
+  df -h / || true
+  fail "build échoué. Si la sortie indique SIGABRT, ajoute 2G de swap sur le VPS puis relance ./deploy/deploy.sh"
+fi
 
 [ -f ".output/server/index.mjs" ] || fail "build a échoué : .output/server/index.mjs absent"
 
