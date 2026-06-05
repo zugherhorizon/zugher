@@ -23,7 +23,7 @@ jobs:
           script_stop: true
           script: |
             cd /var/www/zugher
-            ./deploy/deploy.sh
+            bash ./deploy/deploy.sh
 
       - name: Smoke test
         run: |
