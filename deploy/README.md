@@ -60,7 +60,7 @@ sudo nginx -t && sudo systemctl reload nginx
 ### 6. SSL (après propagation DNS)
 
 ```bash
-sudo certbot --nginx -d zugher.fr -d www.zugher.fr
+sudo certbot --nginx -d zugher.com -d www.zugher.com
 ```
 
 ### 7. Premier build & démarrage
@@ -75,15 +75,15 @@ sudo systemctl status zugher
 
 ### 8. Configurer Lovable Cloud (Supabase)
 
-- Auth → URL Configuration → Site URL = `https://zugher.fr`
-- Auth → URL Configuration → Redirect URLs += `https://zugher.fr/**`
-- Auth → Providers → Google → ajouter `https://zugher.fr` aux Authorized JS origins
+- Auth → URL Configuration → Site URL = `https://zugher.com`
+- Auth → URL Configuration → Redirect URLs += `https://zugher.com/**`
+- Auth → Providers → Google → ajouter `https://zugher.com` aux Authorized JS origins
 
 ### 9. Webhook Paddle
 
 Paddle dashboard → Notifications → URL :
 ```
-https://zugher.fr/api/public/payments/webhook?env=live
+https://zugher.com/api/public/payments/webhook?env=live
 ```
 
 ## Mises à jour ultérieures

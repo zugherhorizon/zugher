@@ -50,7 +50,7 @@ git push origin main
 
 **Suivi du déploiement** : https://github.com/zugherhorizon/zugher/actions
 
-Job vert = site mis à jour sur https://zugher.fr (smoke test inclus dans le workflow).
+Job vert = site mis à jour sur https://zugher.com (smoke test inclus dans le workflow).
 
 ---
 
