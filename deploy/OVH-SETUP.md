@@ -59,7 +59,7 @@ cat ~/.ssh/zugher_deploy                                    # ← copier la clé
 
 ### 4.b — Secret GitHub (une seule fois)
 
-Repo `mamrabt/zugher` → **Settings → Secrets and variables → Actions → New repository secret** :
+Repo `zugherhorizon/zugher` → **Settings → Secrets and variables → Actions → New repository secret** :
 - Nom : `VPS_SSH_PRIVATE_KEY`
 - Valeur : contenu complet de `~/.ssh/zugher_deploy` (lignes `-----BEGIN…END-----` incluses)
 
@@ -75,7 +75,7 @@ sudo visudo -c    # → doit dire "parsed OK"
 
 ### 4.d — Vérifier que le webhook GitHub est bien actif
 
-Repo `mamrabt/zugher` → **Settings → Webhooks** : tu dois voir un webhook géré par GitHub Actions (créé automatiquement quand un workflow existe — rien à configurer).
+Repo `zugherhorizon/zugher` → **Settings → Webhooks** : tu dois voir un webhook géré par GitHub Actions (créé automatiquement quand un workflow existe — rien à configurer).
 
 ### 4.e — Test de bout en bout
 
