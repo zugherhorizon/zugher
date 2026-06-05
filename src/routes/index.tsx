@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { getCurrentTenant } from "@/lib/tenant";
+import { useI18n } from "@/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,56 +17,54 @@ export const Route = createFileRoute("/")({
 });
 
 const apps = [
-  { num: "01", to: "/territoire", name: "Promotion territoire", desc: "Vitrine du territoire et de ses sous-territoires : pays, régions, secteurs, collectivités." },
-  { num: "02", to: "/opportunites", name: "Banque d'opportunités", desc: "Catalogue d'opportunités de projets qualifiées par territoire et par secteur." },
-  { num: "03", to: "/parcours", name: "Bilan de compétence", desc: "Évaluation du porteur, identification des forces et besoins d'accompagnement." },
-  { num: "04", to: "/applications", name: "Networking", desc: "Mise en relation qualifiée entre porteurs, investisseurs, prestataires et institutions." },
-  { num: "05", to: "/parcours", name: "Business Plan", desc: "Génération assistée par IA, communicable aux partenaires et investisseurs." },
-  { num: "06", to: "/applications", name: "Crowdfunding & Financement", desc: "Levée participative et mise en relation avec les institutions financières." },
-  { num: "07", to: "/applications", name: "Recrutement", desc: "Publication d'offres, vivier de candidats, matching propulsé par IA." },
-  { num: "08", to: "/pro", name: "Business Développement", desc: "Outils commerciaux pour grand public, professionnel et marché public." },
-  { num: "09", to: "/applications", name: "Appels d'offres", desc: "Gestion des appels d'offres publics et privés : publication, candidature, suivi." },
-];
+  { num: "01", to: "/territoire", nameKey: "app.01.name", descKey: "app.01.desc" },
+  { num: "02", to: "/opportunites", nameKey: "app.02.name", descKey: "app.02.desc" },
+  { num: "03", to: "/parcours", nameKey: "app.03.name", descKey: "app.03.desc" },
+  { num: "04", to: "/applications", nameKey: "app.04.name", descKey: "app.04.desc" },
+  { num: "05", to: "/parcours", nameKey: "app.05.name", descKey: "app.05.desc" },
+  { num: "06", to: "/applications", nameKey: "app.06.name", descKey: "app.06.desc" },
+  { num: "07", to: "/applications", nameKey: "app.07.name", descKey: "app.07.desc" },
+  { num: "08", to: "/pro", nameKey: "app.08.name", descKey: "app.08.desc" },
+  { num: "09", to: "/applications", nameKey: "app.09.name", descKey: "app.09.desc" },
+] as const;
 
 function Accueil() {
   const tenant = getCurrentTenant();
+  const { t } = useI18n();
   return (
     <>
       <section className="zg-hero">
-        <div className="zg-eyebrow">Plateforme générique · Édition 2026</div>
-        <h1 className="zg-h1">
-          Une <em>place de marché</em> au service du <em>développement</em> des territoires.
-        </h1>
-        <p className="zg-lead">
-          zugher.com est un socle SaaS multi-tenant qui permet à tout territoire — pays, région,
-          collectivité, secteur ou écosystème — de structurer et activer son développement
-          économique avec l'aide de l'intelligence artificielle.
-        </p>
+        <div className="zg-eyebrow">{t("home.eyebrow")}</div>
+        <h1
+          className="zg-h1"
+          dangerouslySetInnerHTML={{ __html: t("home.h1") }}
+        />
+        <p className="zg-lead">{t("home.lead")}</p>
         <div className="zg-actions">
           <Link to="/territoire" className="zg-btn zg-btn-primary">
-            Découvrir {tenant.shortName}, territoire pilote →
+            {t("home.cta_discover").replace("Valoria", tenant.shortName)}
           </Link>
           <Link to="/applications" className="zg-btn zg-btn-ghost">
-            Voir les 9 applications
+            {t("home.cta_apps")}
           </Link>
         </div>
 
         <div className="zg-stat-strip">
           <div className="zg-stat">
             <span className="zg-stat-value">9</span>
-            <div className="zg-stat-label">applications SaaS</div>
+            <div className="zg-stat-label">{t("home.stat_apps")}</div>
           </div>
           <div className="zg-stat">
             <span className="zg-stat-value">6</span>
-            <div className="zg-stat-label">langues natives</div>
+            <div className="zg-stat-label">{t("home.stat_langs")}</div>
           </div>
           <div className="zg-stat">
             <span className="zg-stat-value">2</span>
-            <div className="zg-stat-label">segments commerciaux</div>
+            <div className="zg-stat-label">{t("home.stat_segments")}</div>
           </div>
           <div className="zg-stat">
             <span className="zg-stat-value">∞</span>
-            <div className="zg-stat-label">territoires possibles</div>
+            <div className="zg-stat-label">{t("home.stat_territories")}</div>
           </div>
         </div>
       </section>
@@ -73,23 +72,21 @@ function Accueil() {
       <section className="zg-section">
         <div className="zg-section-head">
           <div>
-            <div className="zg-section-eyebrow">§2 · Architecture fonctionnelle</div>
-            <h2 className="zg-h2">
-              Neuf applications, <em>une seule plateforme</em>.
-            </h2>
+            <div className="zg-section-eyebrow">{t("home.apps.eyebrow")}</div>
+            <h2
+              className="zg-h2"
+              dangerouslySetInnerHTML={{ __html: t("home.apps.h2") }}
+            />
           </div>
-          <div className="zg-section-aside">
-            Chaque territoire active les modules qui lui correspondent. Le socle est mutualisé, la
-            personnalisation se fait par un simple fichier de configuration.
-          </div>
+          <div className="zg-section-aside">{t("home.apps.aside")}</div>
         </div>
 
         <div className="zg-saas-grid">
           {apps.map((a) => (
             <Link key={a.num} to={a.to} className="zg-saas-card">
               <span className="zg-saas-num">app · {a.num}</span>
-              <div className="zg-saas-name">{a.name}</div>
-              <div className="zg-saas-desc">{a.desc}</div>
+              <div className="zg-saas-name">{t(a.nameKey)}</div>
+              <div className="zg-saas-desc">{t(a.descKey)}</div>
               <div className="zg-saas-arrow">→</div>
             </Link>
           ))}
@@ -99,22 +96,20 @@ function Accueil() {
       <section className="zg-section">
         <div className="zg-section-head">
           <div>
-            <div className="zg-section-eyebrow">§3 · Segmentation</div>
-            <h2 className="zg-h2">
-              Deux <em>publics</em>, deux <em>parcours</em>.
-            </h2>
+            <div className="zg-section-eyebrow">{t("home.seg.eyebrow")}</div>
+            <h2
+              className="zg-h2"
+              dangerouslySetInnerHTML={{ __html: t("home.seg.h2") }}
+            />
           </div>
-          <div className="zg-section-aside">
-            Le grand public accède en self-service avec pricing affiché. Le segment professionnel
-            passe par une commercialisation directe et reçoit une instance personnalisée.
-          </div>
+          <div className="zg-section-aside">{t("home.seg.aside")}</div>
         </div>
 
         <div className="zg-segments">
           <div className="zg-segment-card btoc">
-            <div className="zg-segment-tag">BtoC · self-service en ligne</div>
-            <h3>Grand public</h3>
-            <p className="channel">Inscription guidée, pricing transparent</p>
+            <div className="zg-segment-tag">{t("home.btoc.tag")}</div>
+            <h3>{t("home.btoc.title")}</h3>
+            <p className="channel">{t("home.btoc.channel")}</p>
             <ul className="zg-segment-list">
               <li><span>Porteurs de projets, entrepreneurs, PME</span><span className="arrow">→</span></li>
               <li><span>Investisseurs privés particuliers</span><span className="arrow">→</span></li>
@@ -124,9 +119,9 @@ function Accueil() {
           </div>
 
           <div className="zg-segment-card btob">
-            <div className="zg-segment-tag">BtoB · commercialisation one-to-one</div>
-            <h3>Professionnel</h3>
-            <p className="channel">Cotation, accès privé, instance dédiée</p>
+            <div className="zg-segment-tag">{t("home.btob.tag")}</div>
+            <h3>{t("home.btob.title")}</h3>
+            <p className="channel">{t("home.btob.channel")}</p>
             <ul className="zg-segment-list">
               <li><span>Agences publiques de développement</span><span className="arrow">→</span></li>
               <li><span>Associations professionnelles</span><span className="arrow">→</span></li>
@@ -140,11 +135,8 @@ function Accueil() {
 
       <section className="zg-section">
         <div className="zg-ai-block">
-          <h3>L'intelligence artificielle, intégrée nativement au parcours.</h3>
-          <p>
-            L'IA n'est pas un module annexe : elle traverse toute la plateforme, du matching jusqu'à
-            la génération de business plans, du scoring d'opportunités à l'aide rédactionnelle.
-          </p>
+          <h3>{t("home.ai.title")}</h3>
+          <p>{t("home.ai.lead")}</p>
           <div className="zg-ai-cases">
             <div className="zg-ai-case"><strong>Génération assistée</strong><span>Business plans et études de marché à partir d'un questionnaire guidé.</span></div>
             <div className="zg-ai-case"><strong>Matching qualifié</strong><span>Porteur ↔ investisseur ↔ prestataire selon critères, secteurs et géographie.</span></div>

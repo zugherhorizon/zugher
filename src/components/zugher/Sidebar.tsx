@@ -3,47 +3,52 @@ import { useState } from "react";
 import { getCurrentTenant } from "@/lib/tenant";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/i18n";
+import { LanguageSwitcher } from "@/components/zugher/LanguageSwitcher";
 
-type NavItem = { to: string; label: string };
-type NavGroup = { title: string; items: NavItem[] };
+type NavItem = { to: string; labelKey: string; fallback: string };
+type NavGroup = { titleKey: string; titleFallback: string; items: NavItem[] };
 
 const groups: NavGroup[] = [
   {
-    title: "Découvrir",
+    titleKey: "nav.section.discover",
+    titleFallback: "Découvrir",
     items: [
-      { to: "/", label: "Accueil" },
-      { to: "/territoire", label: "Vitrine territoire" },
-      { to: "/applications", label: "Applications SaaS" },
+      { to: "/", labelKey: "nav.home", fallback: "Accueil" },
+      { to: "/territoire", labelKey: "nav.territory", fallback: "Vitrine territoire" },
+      { to: "/applications", labelKey: "nav.applications", fallback: "Applications SaaS" },
     ],
   },
   {
-    title: "Grand public · BtoC",
+    titleKey: "nav.section.btoc",
+    titleFallback: "Grand public · BtoC",
     items: [
-      { to: "/opportunites", label: "Banque d'opportunités" },
-      { to: "/business-plan", label: "Business Plan IA" },
-      { to: "/parcours", label: "Parcours porteur" },
-      { to: "/investisseurs", label: "Espace investisseurs" },
-      { to: "/competences", label: "Espace compétences" },
+      { to: "/opportunites", labelKey: "nav.opportunities", fallback: "Banque d'opportunités" },
+      { to: "/business-plan", labelKey: "nav.business_plan", fallback: "Business Plan IA" },
+      { to: "/parcours", labelKey: "nav.journey", fallback: "Parcours porteur" },
+      { to: "/investisseurs", labelKey: "nav.investors", fallback: "Espace investisseurs" },
+      { to: "/competences", labelKey: "nav.skills", fallback: "Espace compétences" },
     ],
   },
   {
-    title: "Professionnel · BtoB",
+    titleKey: "nav.section.btob",
+    titleFallback: "Professionnel · BtoB",
     items: [
-      { to: "/pro", label: "Offre Pro" },
-      { to: "/dashboard", label: "Tableau de bord" },
+      { to: "/pro", labelKey: "nav.pro", fallback: "Offre Pro" },
+      { to: "/dashboard", labelKey: "nav.dashboard", fallback: "Tableau de bord" },
     ],
   },
   {
-    title: "Nous rejoindre",
+    titleKey: "nav.section.join",
+    titleFallback: "Nous rejoindre",
     items: [
-      { to: "/inscription", label: "Créer un compte" },
-      { to: "/connexion", label: "Identifier" },
-      { to: "/mon-compte", label: "Mon compte" },
-      { to: "/newsletter", label: "Newsletter" },
+      { to: "/inscription", labelKey: "nav.signup", fallback: "Créer un compte" },
+      { to: "/connexion", labelKey: "nav.login", fallback: "Identifier" },
+      { to: "/mon-compte", labelKey: "nav.account", fallback: "Mon compte" },
+      { to: "/newsletter", labelKey: "nav.newsletter", fallback: "Newsletter" },
     ],
   },
 ];
-
 
 export function Sidebar() {
   const [open, setOpen] = useState(false);
@@ -51,9 +56,10 @@ export function Sidebar() {
   const tenant = getCurrentTenant();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   async function onLogout() {
-    if (!window.confirm("Confirmer la déconnexion ?")) return;
+    if (!window.confirm(t("auth.confirm_logout", "Confirmer la déconnexion ?"))) return;
     await supabase.auth.signOut();
     navigate({ to: "/" });
   }
@@ -65,7 +71,7 @@ export function Sidebar() {
           zugher<span className="dot">.</span>
         </span>
         <button onClick={() => setOpen((v) => !v)} aria-label="Menu">
-          {open ? "Fermer" : "Menu"}
+          {open ? t("nav.close", "Fermer") : t("nav.menu", "Menu")}
         </button>
       </div>
 
@@ -75,26 +81,28 @@ export function Sidebar() {
             zugher<span className="dot">.</span>
           </span>
         </div>
-        <div className="zg-brand-sub">place de marché de territoires</div>
+        <div className="zg-brand-sub">{t("nav.brand_sub")}</div>
+
+        <LanguageSwitcher />
 
         <div className="zg-tenant-badge">
-          <div className="label">Territoire actif</div>
+          <div className="label">{t("nav.active_territory")}</div>
           <div className="name">{tenant.name}</div>
         </div>
 
         {groups.map((g) => (
-          <div key={g.title}>
-            <div className="zg-nav-section">{g.title}</div>
+          <div key={g.titleKey}>
+            <div className="zg-nav-section">{t(g.titleKey, g.titleFallback)}</div>
             {g.items.map((it) => {
               const active = it.to === "/" ? pathname === "/" : pathname.startsWith(it.to);
               return (
                 <Link
-                  key={`${it.to}-${it.label}`}
+                  key={`${it.to}-${it.labelKey}`}
                   to={it.to}
                   onClick={() => setOpen(false)}
                   className={`zg-nav-item${active ? " active" : ""}`}
                 >
-                  {it.label}
+                  {t(it.labelKey, it.fallback)}
                 </Link>
               );
             })}
@@ -127,7 +135,11 @@ export function Sidebar() {
               }}
             />
             <span style={{ fontWeight: 600 }}>
-              {loading ? "Vérification…" : user ? "Connecté" : "Déconnecté"}
+              {loading
+                ? t("auth.checking", "Vérification…")
+                : user
+                  ? t("auth.connected", "Connecté")
+                  : t("auth.disconnected", "Déconnecté")}
             </span>
           </div>
           {user && (
@@ -148,16 +160,16 @@ export function Sidebar() {
                   cursor: "pointer",
                 }}
               >
-                Se déconnecter
+                {t("auth.logout", "Se déconnecter")}
               </button>
             </>
           )}
         </div>
 
         <div className="zg-sidebar-footer">
-          Instance {tenant.shortName} · v2.0
+          {t("footer.instance", `Instance ${tenant.shortName} · v2.0`)}
           <br />
-          RGPD compliant · 2026
+          {t("footer.rgpd", "RGPD compliant · 2026")}
         </div>
       </aside>
     </>
