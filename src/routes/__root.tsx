@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Sidebar } from "@/components/zugher/Sidebar";
 import { FloatingChat } from "@/components/zugher/FloatingChat";
+import { I18nProvider } from "@/i18n";
 
 function NotFoundComponent() {
   return (
@@ -100,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Serif+Arabic:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap",
       },
     ],
   }),
@@ -129,11 +130,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Sidebar />
-      <main className="zg-main">
-        <Outlet />
-      </main>
-      <FloatingChat />
+      <I18nProvider>
+        <Sidebar />
+        <main className="zg-main">
+          <Outlet />
+        </main>
+        <FloatingChat />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
