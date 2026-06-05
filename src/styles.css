@@ -1040,3 +1040,87 @@ body::before {
   padding: 8px 14px !important;
   font-size: 13px !important;
 }
+
+/* =========================================================
+ * I18N — Sélecteur de langue, RTL (arabe), fontes natives.
+ * Repris de l'implémentation statique zugher.com.
+ * ========================================================= */
+
+.zg-lang-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 12px 12px 16px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  background: color-mix(in oklab, var(--ink) 3%, var(--paper));
+}
+.zg-lang-btn {
+  flex: 1 1 auto;
+  min-width: 36px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-mute);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.zg-lang-btn:hover:not(.active) {
+  border-color: color-mix(in oklab, var(--ink) 20%, transparent);
+  color: var(--ink);
+}
+.zg-lang-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* Arabe : Noto Sans Arabic + sens RTL */
+html[lang="ar"] body {
+  font-family: "Noto Sans Arabic", "DM Sans", system-ui, sans-serif;
+}
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4,
+html[lang="ar"] .zg-saas-name,
+html[lang="ar"] .zg-brand-mark,
+html[lang="ar"] .zg-stat-value,
+html[lang="ar"] .brand-mini {
+  font-family: "Noto Serif Arabic", "Noto Sans Arabic", Georgia, serif;
+  font-style: normal;
+}
+html[lang="ar"] em {
+  font-style: normal;
+  font-weight: 700;
+}
+html[dir="rtl"] .zg-sidebar {
+  text-align: right;
+}
+html[dir="rtl"] .zg-saas-arrow,
+html[dir="rtl"] .zg-segment-list .arrow {
+  transform: scaleX(-1);
+}
+
+/* Chinois : Noto Sans SC */
+html[lang="zh"] body {
+  font-family: "Noto Sans SC", "DM Sans", system-ui, sans-serif;
+}
+html[lang="zh"] h1,
+html[lang="zh"] h2,
+html[lang="zh"] h3,
+html[lang="zh"] h4,
+html[lang="zh"] .zg-saas-name,
+html[lang="zh"] .zg-brand-mark,
+html[lang="zh"] .zg-stat-value {
+  font-family: "Noto Sans SC", "Fraunces", Georgia, serif;
+}
+html[lang="zh"] em {
+  font-style: normal;
+  font-weight: 700;
+}
