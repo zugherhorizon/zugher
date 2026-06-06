@@ -152,7 +152,7 @@ function Accueil() {
         <div className="zg-ai-block" style={{ textAlign: "center" }}>
           <p style={{ fontSize: "0.9rem", margin: 0 }}>
             <strong>zugher.com</strong> est un service proposé par{" "}
-            <strong>Factory.AI</strong>, SASU.
+            <strong>Factory.AI</strong>.
           </p>
         </div>
       </section>
