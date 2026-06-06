@@ -19,6 +19,9 @@ BUN="$HOME/.bun/bin/bun"
 HEALTH_URL="http://127.0.0.1:3000"
 LOG_PREFIX="[deploy $(date -u +%Y-%m-%dT%H:%M:%SZ)]"
 NODE_BIN="$(command -v node || true)"
+SWAP_FILE="/swapfile"
+SWAP_SIZE_GB="${SWAP_SIZE_GB:-4}"
+NODE_MAX_OLD_SPACE_SIZE="${NODE_MAX_OLD_SPACE_SIZE:-4096}"
 
 log()  { echo "$LOG_PREFIX $*"; }
 fail() { echo "$LOG_PREFIX ❌ $*" >&2; exit 1; }
@@ -30,6 +33,37 @@ cd "$APP_DIR" || fail "APP_DIR introuvable: $APP_DIR"
 [ -x "$BUN" ] || fail "bun introuvable à $BUN — installer Bun (cf. README)"
 [ -x "$NODE_BIN" ] || fail "node introuvable — installer Node 20 (cf. README)"
 [ -f ".env.production" ] || fail ".env.production manquant (chmod 600)"
+
+# ── Swap : garantir au moins ${SWAP_SIZE_GB}G actif (évite OOM pendant le build Vite) ──
+ensure_swap() {
+  local target_kb=$(( SWAP_SIZE_GB * 1024 * 1024 ))
+  local current_kb
+  current_kb=$(awk '/^SwapTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+  if [ "${current_kb:-0}" -ge "$target_kb" ]; then
+    log "▶ swap déjà ≥ ${SWAP_SIZE_GB}G ($((current_kb/1024)) MB) — OK"
+    return 0
+  fi
+  log "▶ swap insuffisant ($((current_kb/1024)) MB) — création de ${SWAP_FILE} (${SWAP_SIZE_GB}G)"
+  if [ ! -w / ] && ! sudo -n true 2>/dev/null; then
+    log "⚠ sudo non disponible sans mot de passe — swap non modifié"
+    return 0
+  fi
+  if [ -f "$SWAP_FILE" ]; then
+    sudo swapoff "$SWAP_FILE" 2>/dev/null || true
+    sudo rm -f "$SWAP_FILE"
+  fi
+  if sudo fallocate -l "${SWAP_SIZE_GB}G" "$SWAP_FILE" 2>/dev/null; then :; else
+    sudo dd if=/dev/zero of="$SWAP_FILE" bs=1M count=$(( SWAP_SIZE_GB * 1024 )) status=none
+  fi
+  sudo chmod 600 "$SWAP_FILE"
+  sudo mkswap "$SWAP_FILE" >/dev/null
+  sudo swapon "$SWAP_FILE"
+  if ! grep -q "^${SWAP_FILE} " /etc/fstab 2>/dev/null; then
+    echo "${SWAP_FILE} none swap sw 0 0" | sudo tee -a /etc/fstab >/dev/null
+  fi
+  log "   swap actif : $(awk '/^SwapTotal:/ {printf "%d MB", $2/1024}' /proc/meminfo)"
+}
+ensure_swap || log "⚠ ensure_swap a échoué (non bloquant)"
 
 log "▶ git fetch & pull (ff-only)"
 git config advice.diverging false
@@ -47,7 +81,8 @@ log "▶ build (Node + NITRO_PRESET=node-server)"
 rm -rf .output .nitro dist node_modules/.vite
 export NODE_ENV=production
 export NITRO_PRESET=node-server
-export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE:-1536}"
+export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}"
+log "   NODE_OPTIONS=$NODE_OPTIONS"
 if ! "$NODE_BIN" ./node_modules/vite/bin/vite.js build; then
   log "❌ build interrompu — diagnostic mémoire VPS"
   free -h || true
