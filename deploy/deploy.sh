@@ -34,6 +34,37 @@ cd "$APP_DIR" || fail "APP_DIR introuvable: $APP_DIR"
 [ -x "$NODE_BIN" ] || fail "node introuvable — installer Node 20 (cf. README)"
 [ -f ".env.production" ] || fail ".env.production manquant (chmod 600)"
 
+# ── Swap : garantir au moins ${SWAP_SIZE_GB}G actif (évite OOM pendant le build Vite) ──
+ensure_swap() {
+  local target_kb=$(( SWAP_SIZE_GB * 1024 * 1024 ))
+  local current_kb
+  current_kb=$(awk '/^SwapTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+  if [ "${current_kb:-0}" -ge "$target_kb" ]; then
+    log "▶ swap déjà ≥ ${SWAP_SIZE_GB}G ($((current_kb/1024)) MB) — OK"
+    return 0
+  fi
+  log "▶ swap insuffisant ($((current_kb/1024)) MB) — création de ${SWAP_FILE} (${SWAP_SIZE_GB}G)"
+  if [ ! -w / ] && ! sudo -n true 2>/dev/null; then
+    log "⚠ sudo non disponible sans mot de passe — swap non modifié"
+    return 0
+  fi
+  if [ -f "$SWAP_FILE" ]; then
+    sudo swapoff "$SWAP_FILE" 2>/dev/null || true
+    sudo rm -f "$SWAP_FILE"
+  fi
+  if sudo fallocate -l "${SWAP_SIZE_GB}G" "$SWAP_FILE" 2>/dev/null; then :; else
+    sudo dd if=/dev/zero of="$SWAP_FILE" bs=1M count=$(( SWAP_SIZE_GB * 1024 )) status=none
+  fi
+  sudo chmod 600 "$SWAP_FILE"
+  sudo mkswap "$SWAP_FILE" >/dev/null
+  sudo swapon "$SWAP_FILE"
+  if ! grep -q "^${SWAP_FILE} " /etc/fstab 2>/dev/null; then
+    echo "${SWAP_FILE} none swap sw 0 0" | sudo tee -a /etc/fstab >/dev/null
+  fi
+  log "   swap actif : $(awk '/^SwapTotal:/ {printf "%d MB", $2/1024}' /proc/meminfo)"
+}
+ensure_swap || log "⚠ ensure_swap a échoué (non bloquant)"
+
 log "▶ git fetch & pull (ff-only)"
 git config advice.diverging false
 git fetch --prune origin
