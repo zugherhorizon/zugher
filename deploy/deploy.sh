@@ -19,6 +19,9 @@ BUN="$HOME/.bun/bin/bun"
 HEALTH_URL="http://127.0.0.1:3000"
 LOG_PREFIX="[deploy $(date -u +%Y-%m-%dT%H:%M:%SZ)]"
 NODE_BIN="$(command -v node || true)"
+SWAP_FILE="/swapfile"
+SWAP_SIZE_GB="${SWAP_SIZE_GB:-4}"
+NODE_MAX_OLD_SPACE_SIZE="${NODE_MAX_OLD_SPACE_SIZE:-4096}"
 
 log()  { echo "$LOG_PREFIX $*"; }
 fail() { echo "$LOG_PREFIX ❌ $*" >&2; exit 1; }
