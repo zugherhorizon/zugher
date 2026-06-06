@@ -209,9 +209,8 @@ async function createGoogleEvent(args: {
   format: "call" | "video";
   attendeeEmail: string;
 }): Promise<{ eventId?: string; meetLink?: string } | null> {
-  const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey || !lovableKey) return null;
+  const accessToken = await getGoogleAccessToken();
+  if (!accessToken) return null;
   try {
     const body: Record<string, unknown> = {
       summary: args.summary,
@@ -229,12 +228,11 @@ async function createGoogleEvent(args: {
       };
     }
     const res = await fetch(
-      `https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/${encodeURIComponent(getTargetCalendarId())}/events?conferenceDataVersion=1&sendUpdates=all`,
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getTargetCalendarId())}/events?conferenceDataVersion=1&sendUpdates=all`,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${lovableKey}`,
-          "X-Connection-Api-Key": apiKey,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
@@ -251,9 +249,9 @@ async function createGoogleEvent(args: {
     };
     return {
       eventId: json.id,
-      meetLink:
-        json.hangoutLink ?? json.conferenceData?.entryPoints?.[0]?.uri,
+      meetLink: json.hangoutLink ?? json.conferenceData?.entryPoints?.[0]?.uri,
     };
+
   } catch (e) {
     console.error("Google event create error", e);
     return null;
