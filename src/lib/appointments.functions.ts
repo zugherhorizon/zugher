@@ -40,31 +40,63 @@ function getTargetCalendarId(): string {
   return process.env.GOOGLE_CALENDAR_ID?.trim() || "primary";
 }
 
+// ─── Google OAuth (refresh token flow, direct API, sans passerelle Lovable) ───
+let cachedAccessToken: { token: string; expiresAt: number } | null = null;
+
+async function getGoogleAccessToken(): Promise<string | null> {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+  if (!clientId || !clientSecret || !refreshToken) return null;
+
+  const now = Date.now();
+  if (cachedAccessToken && cachedAccessToken.expiresAt > now + 60_000) {
+    return cachedAccessToken.token;
+  }
+
+  try {
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: "refresh_token",
+      }),
+    });
+    if (!res.ok) {
+      console.error("Google token refresh failed", res.status, await res.text());
+      return null;
+    }
+    const json = (await res.json()) as { access_token: string; expires_in: number };
+    cachedAccessToken = {
+      token: json.access_token,
+      expiresAt: now + json.expires_in * 1000,
+    };
+    return json.access_token;
+  } catch (e) {
+    console.error("Google token refresh error", e);
+    return null;
+  }
+}
+
 async function fetchGoogleBusy(
   timeMin: string,
   timeMax: string,
 ): Promise<{ start: string; end: string }[] | null> {
-  const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey || !lovableKey) return null;
+  const accessToken = await getGoogleAccessToken();
+  if (!accessToken) return null;
   const calendarId = getTargetCalendarId();
   try {
-    const res = await fetch(
-      "https://connector-gateway.lovable.dev/google_calendar/calendar/v3/freeBusy",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${lovableKey}`,
-          "X-Connection-Api-Key": apiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          timeMin,
-          timeMax,
-          items: [{ id: calendarId }],
-        }),
+    const res = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({ timeMin, timeMax, items: [{ id: calendarId }] }),
+    });
     if (!res.ok) {
       console.error("Google freeBusy failed", res.status, await res.text());
       return null;
@@ -89,19 +121,13 @@ export const listAdminCalendars = createServerFn({ method: "GET" })
     });
     if (!isAdmin) return { ok: false as const, error: "Accès refusé." };
 
-    const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
-    const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey || !lovableKey) {
-      return { ok: false as const, error: "Google Calendar non connecté." };
+    const accessToken = await getGoogleAccessToken();
+    if (!accessToken) {
+      return { ok: false as const, error: "Google Calendar non connecté (OAuth manquant)." };
     }
     const res = await fetch(
-      "https://connector-gateway.lovable.dev/google_calendar/calendar/v3/users/me/calendarList",
-      {
-        headers: {
-          Authorization: `Bearer ${lovableKey}`,
-          "X-Connection-Api-Key": apiKey,
-        },
-      },
+      "https://www.googleapis.com/calendar/v3/users/me/calendarList",
+      { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     if (!res.ok) {
       return { ok: false as const, error: `Google API ${res.status}` };
@@ -120,6 +146,7 @@ export const listAdminCalendars = createServerFn({ method: "GET" })
       })),
     };
   });
+
 
 export const listAvailableSlots = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -182,9 +209,8 @@ async function createGoogleEvent(args: {
   format: "call" | "video";
   attendeeEmail: string;
 }): Promise<{ eventId?: string; meetLink?: string } | null> {
-  const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey || !lovableKey) return null;
+  const accessToken = await getGoogleAccessToken();
+  if (!accessToken) return null;
   try {
     const body: Record<string, unknown> = {
       summary: args.summary,
@@ -202,12 +228,11 @@ async function createGoogleEvent(args: {
       };
     }
     const res = await fetch(
-      `https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/${encodeURIComponent(getTargetCalendarId())}/events?conferenceDataVersion=1&sendUpdates=all`,
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getTargetCalendarId())}/events?conferenceDataVersion=1&sendUpdates=all`,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${lovableKey}`,
-          "X-Connection-Api-Key": apiKey,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
@@ -224,9 +249,9 @@ async function createGoogleEvent(args: {
     };
     return {
       eventId: json.id,
-      meetLink:
-        json.hangoutLink ?? json.conferenceData?.entryPoints?.[0]?.uri,
+      meetLink: json.hangoutLink ?? json.conferenceData?.entryPoints?.[0]?.uri,
     };
+
   } catch (e) {
     console.error("Google event create error", e);
     return null;
