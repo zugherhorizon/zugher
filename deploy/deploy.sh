@@ -6,7 +6,7 @@
 #   1. git pull (fast-forward only, fail si divergence)
 #   2. bun install (frozen lockfile)
 #   3. build Nitro node-server
-#   4. vérifie que .output/server/index.mjs existe
+#   4. vérifie/crée l'entrypoint Node attendu par systemd
 #   5. restart service systemd + healthcheck local
 #
 # Prérequis (setup unique) : voir deploy/README.md et deploy/OVH-SETUP.md
@@ -22,6 +22,7 @@ NODE_BIN="$(command -v node || true)"
 SWAP_FILE="/swapfile"
 SWAP_SIZE_GB="${SWAP_SIZE_GB:-4}"
 NODE_MAX_OLD_SPACE_SIZE="${NODE_MAX_OLD_SPACE_SIZE:-4096}"
+EXPECTED_ENTRYPOINT=".output/server/index.mjs"
 
 log()  { echo "$LOG_PREFIX $*"; }
 fail() { echo "$LOG_PREFIX ❌ $*" >&2; exit 1; }
@@ -65,6 +66,52 @@ ensure_swap() {
 }
 ensure_swap || log "⚠ ensure_swap a échoué (non bloquant)"
 
+ensure_node_entrypoint() {
+  if [ -f "$EXPECTED_ENTRYPOINT" ]; then
+    log "   entrypoint Node OK: $EXPECTED_ENTRYPOINT"
+    return 0
+  fi
+
+  local generated_entry=""
+  local dir
+  for dir in .output dist; do
+    if [ -d "$dir" ]; then
+      generated_entry=$(find "$dir" -type f -path "*/server/index.mjs" -print -quit 2>/dev/null || true)
+      [ -n "$generated_entry" ] && break
+    fi
+  done
+  if [ -z "$generated_entry" ]; then
+    for dir in .output dist; do
+      if [ -d "$dir" ]; then
+        generated_entry=$(find "$dir" -type f -name "index.mjs" -print -quit 2>/dev/null || true)
+        [ -n "$generated_entry" ] && break
+      fi
+    done
+  fi
+
+  if [ -z "$generated_entry" ]; then
+    log "❌ build terminé mais aucun entrypoint Node détecté — fichiers générés:"
+    for dir in .output dist; do
+      if [ -d "$dir" ]; then
+        find "$dir" -maxdepth 4 -type f | sed 's/^/   /' | head -n 120 || true
+      else
+        log "   $dir absent"
+      fi
+    done
+    fail "build échoué : $EXPECTED_ENTRYPOINT absent et aucun index.mjs alternatif trouvé."
+  fi
+
+  local generated_dir target_rel
+  generated_dir=$(dirname "$generated_entry")
+  mkdir -p .output
+  rm -rf .output/server
+  target_rel=$(realpath --relative-to=".output" "$generated_dir" 2>/dev/null || realpath "$generated_dir")
+  ln -s "$target_rel" .output/server
+  [ -f "$EXPECTED_ENTRYPOINT" ] || fail "build échoué : impossible de relier $generated_entry vers $EXPECTED_ENTRYPOINT"
+  log "   entrypoint Node généré ailleurs: $generated_entry"
+  log "   compat systemd: .output/server -> $target_rel"
+}
+
 log "▶ git fetch & pull (ff-only)"
 git config advice.diverging false
 git fetch --prune origin
@@ -90,17 +137,7 @@ if ! "$NODE_BIN" ./node_modules/vite/bin/vite.js build; then
   fail "build échoué. Si la sortie indique SIGABRT, ajoute 2G de swap sur le VPS puis relance ./deploy/deploy.sh"
 fi
 
-if [ ! -f ".output/server/index.mjs" ]; then
-  log "❌ build terminé mais entrypoint Node absent — fichiers générés:"
-  for dir in .output dist; do
-    if [ -d "$dir" ]; then
-      find "$dir" -maxdepth 3 -type f | sed 's/^/   /' | head -n 80 || true
-    else
-      log "   $dir absent"
-    fi
-  done
-  fail "build échoué : .output/server/index.mjs absent. Vérifie que vite.config.ts force nitro.output vers .output."
-fi
+ensure_node_entrypoint
 
 log "▶ restart systemd ($SERVICE)"
 sudo /bin/systemctl restart "$SERVICE"
