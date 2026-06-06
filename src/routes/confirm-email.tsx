@@ -44,10 +44,8 @@ function ConfirmEmailPage() {
   }
 
   if (user && emailConfirmed) {
-    const meta = (user.user_metadata ?? {}) as Meta;
-    const isNewsletter = meta.signup_source === "newsletter";
-    const isPro = meta.audience === "pro";
     const territory = meta.territory?.trim();
+
 
     // CASE 1 — Newsletter only
     if (isNewsletter) {
