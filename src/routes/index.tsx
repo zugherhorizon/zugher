@@ -148,13 +148,11 @@ function Accueil() {
         </div>
       </section>
 
-      <section className="zg-section" aria-label="Propriétaire du site">
+      <section className="zg-section" aria-label="Mentions légales">
         <div className="zg-ai-block" style={{ textAlign: "center" }}>
           <p style={{ fontSize: "0.9rem", margin: 0 }}>
-            Site <strong>zugher.com</strong> — propriétaire et responsable de la publication :{" "}
-            <a href="mailto:amrabt@gmail.com">amrabt@gmail.com</a>
-            {" · "}
-            <a href="mailto:amrabt@googlemail.com">amrabt@googlemail.com</a>
+            <strong>zugher.com</strong> est un service proposé par{" "}
+            <strong>Factory.AI</strong>, SASU.
           </p>
         </div>
       </section>
