@@ -81,7 +81,8 @@ log "▶ build (Node + NITRO_PRESET=node-server)"
 rm -rf .output .nitro dist node_modules/.vite
 export NODE_ENV=production
 export NITRO_PRESET=node-server
-export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE:-1536}"
+export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=${NODE_MAX_OLD_SPACE_SIZE}"
+log "   NODE_OPTIONS=$NODE_OPTIONS"
 if ! "$NODE_BIN" ./node_modules/vite/bin/vite.js build; then
   log "❌ build interrompu — diagnostic mémoire VPS"
   free -h || true
