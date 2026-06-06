@@ -147,6 +147,17 @@ function Accueil() {
           </div>
         </div>
       </section>
+
+      <section className="zg-section" aria-label="Propriétaire du site">
+        <div className="zg-ai-block" style={{ textAlign: "center" }}>
+          <p style={{ fontSize: "0.9rem", margin: 0 }}>
+            Site <strong>zugher.com</strong> — propriétaire et responsable de la publication :{" "}
+            <a href="mailto:amrabt@gmail.com">amrabt@gmail.com</a>
+            {" · "}
+            <a href="mailto:amrabt@googlemail.com">amrabt@googlemail.com</a>
+          </p>
+        </div>
+      </section>
     </>
   );
 }
