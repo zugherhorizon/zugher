@@ -20,6 +20,20 @@ type Meta = {
 
 function ConfirmEmailPage() {
   const { loading, user, emailConfirmed } = useAuth();
+  const navigate = useNavigate();
+
+  const meta = (user?.user_metadata ?? {}) as Meta;
+  const isNewsletter = meta.signup_source === "newsletter";
+  const isPro = meta.audience === "pro";
+
+  useEffect(() => {
+    if (loading || !user || !emailConfirmed) return;
+    if (isNewsletter) return; // reste sur la page de remerciement newsletter
+    const target = isPro ? "/rdv" : "/offres";
+    const t = setTimeout(() => navigate({ to: target, replace: true }), 1500);
+    return () => clearTimeout(t);
+  }, [loading, user, emailConfirmed, isNewsletter, isPro, navigate]);
+
 
   if (loading) {
     return (
