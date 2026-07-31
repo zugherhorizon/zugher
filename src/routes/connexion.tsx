@@ -5,6 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/connexion")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    next:
+      typeof search.next === "string" && search.next.startsWith("/")
+        ? search.next
+        : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Identifier — zugher." },
@@ -25,6 +31,14 @@ const schema = z.object({
 
 function ConnexionPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const goNext = () => {
+    if (next) {
+      window.location.href = next;
+      return;
+    }
+    navigate({ to: "/mon-compte" });
+  };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +83,7 @@ function ConnexionPage() {
     }
 
     if (data.session) {
-      navigate({ to: "/mon-compte" });
+      goNext();
     }
   }
 
@@ -197,14 +211,16 @@ function ConnexionPage() {
           onClick={async () => {
             setError(null);
             const result = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: window.location.origin,
+              redirect_uri: next
+                ? `${window.location.origin}${next}`
+                : window.location.origin,
             });
             if (result.error) {
               setError(result.error.message ?? "Connexion Google impossible");
               return;
             }
             if (result.redirected) return;
-            navigate({ to: "/mon-compte" });
+            goNext();
           }}
           style={{
             display: "inline-flex",
