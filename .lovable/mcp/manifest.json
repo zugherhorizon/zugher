@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://wyautwgjgtzwrzvunzue.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "zugher-horizon",
+      "version": "0.1.0",
+      "title": "Zugher Horizon"
+    },
+    "tools": [
+      {
+        "name": "get_my_profile",
+        "title": "Mon profil zugher",
+        "description": "Récupère le profil zugher de l'utilisateur connecté (type de profil, territoire, pays, région, secteur, besoins).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_my_profile",
+        "title": "Mettre à jour mon profil",
+        "description": "Met à jour les informations territoriales du profil zugher de l'utilisateur connecté (pays, région, département, ville, secteur, besoins).",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80
+            },
+            "region": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "department": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "city": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "sector": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "needs": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_appointments",
+        "title": "Mes rendez-vous",
+        "description": "Liste les rendez-vous zugher de l'utilisateur connecté, du plus récent au plus ancien.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "default": 10,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "upcoming_only": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_subscription",
+        "title": "Mon abonnement",
+        "description": "Récupère l'abonnement zugher le plus récent de l'utilisateur connecté (statut, période, renouvellement).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
