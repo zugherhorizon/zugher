@@ -1,31 +1,110 @@
-name: Deploy to OVH VPS
+name: CI/CD — Deploy to OVH VPS
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      build_on_vps:
+        description: "Construire sur le VPS au lieu du runner GitHub"
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-prod
   cancel-in-progress: false
 
+env:
+  VPS_HOST: 51.68.227.85
+  VPS_USER: ubuntu
+  APP_DIR: /var/www/zugher
+
 jobs:
-  deploy:
+  # ── 1. Qualité : lint + tests unitaires ────────────────────────────────
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          host: 51.68.227.85
-          username: ubuntu
-          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          port: 22
-          script_stop: true
-          script: |
-            cd /var/www/zugher
-            bash ./deploy/deploy.sh
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+        continue-on-error: true
+      - run: bun run test
 
-      - name: Smoke test
+  # ── 2. Build SSR sur le runner (16 Go RAM → plus d'OOM sur le VPS) ─────
+  build:
+    needs: test
+    if: ${{ github.event.inputs.build_on_vps != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: bun install --frozen-lockfile
+
+      - name: Build (Nitro node-server)
+        env:
+          NODE_ENV: production
+          NITRO_PRESET: node-server
+          NODE_OPTIONS: --max-old-space-size=6144
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          VITE_PAYMENTS_CLIENT_TOKEN: ${{ secrets.VITE_PAYMENTS_CLIENT_TOKEN }}
+        run: |
+          node ./node_modules/vite/bin/vite.js build
+          test -f .output/server/index.mjs || {
+            echo "::error::entrypoint .output/server/index.mjs introuvable"
+            find .output -maxdepth 4 -type f | head -50
+            exit 1
+          }
+
+      - name: Archiver le build
+        run: tar -czf output.tar.gz .output
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zugher-output
+          path: output.tar.gz
+          retention-days: 7
+
+  # ── 3. Déploiement du build sur le VPS (release atomique + rollback) ───
+  deploy:
+    needs: build
+    if: ${{ github.event.inputs.build_on_vps != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: zugher-output
+
+      - name: Configurer la clé SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Envoyer le build et le script de release
+        run: |
+          scp -i ~/.ssh/id_ed25519 output.tar.gz "$VPS_USER@$VPS_HOST:/tmp/zugher-output.tar.gz"
+          scp -i ~/.ssh/id_ed25519 deploy/release.sh "$VPS_USER@$VPS_HOST:/tmp/zugher-release.sh"
+
+      - name: Activer la nouvelle version
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$VPS_USER@$VPS_HOST" \
+            "GIT_SHA=${{ github.sha }} bash /tmp/zugher-release.sh /tmp/zugher-output.tar.gz"
+
+      - name: Smoke test public
         run: |
           for i in $(seq 1 20); do
             code=$(curl -s -o /dev/null -w "%{http_code}" https://zugher.com)
@@ -33,5 +112,24 @@ jobs:
             [ "$code" = "200" ] && exit 0
             sleep 3
           done
-          echo "Smoke test failed"
+          echo "::error::Smoke test échoué (https://zugher.com)"
           exit 1
+
+  # ── 3bis. Repli : build directement sur le VPS (workflow_dispatch) ─────
+  deploy-on-vps:
+    needs: test
+    if: ${{ github.event.inputs.build_on_vps == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build + deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 51.68.227.85
+          username: ubuntu
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: 22
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            cd /var/www/zugher
+            bash ./deploy/deploy.sh

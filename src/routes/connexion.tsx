@@ -5,12 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/connexion")({
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { next?: string } => ({
     next:
       typeof search.next === "string" && search.next.startsWith("/")
         ? search.next
         : undefined,
   }),
+
   head: () => ({
     meta: [
       { title: "Identifier — zugher." },
