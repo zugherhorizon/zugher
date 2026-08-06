@@ -2,11 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InscriptionForm } from "@/components/zugher/InscriptionForm";
 
 export const Route = createFileRoute("/inscription")({
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { audience?: string; territory?: string; needs?: string } => ({
     audience: typeof search.audience === "string" ? search.audience : undefined,
     territory: typeof search.territory === "string" ? search.territory : undefined,
     needs: typeof search.needs === "string" ? search.needs : undefined,
   }),
+
   head: () => ({
     meta: [
       { title: "Inscription — zugher." },
